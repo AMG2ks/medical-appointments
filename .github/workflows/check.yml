@@ -1,0 +1,75 @@
+name: check
+
+# Runs the same quality gate as developers do locally: python scripts/check.py
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Keep in sync with what the team uses locally.
+  FLUTTER_VERSION: "3.29.2"
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16.15-alpine
+        env:
+          # Must match POSTGRES_* and DATABASE_URL in backend/.env.example.
+          POSTGRES_USER: medapp
+          POSTGRES_PASSWORD: medapp
+          POSTGRES_DB: medapp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U medapp -d medapp"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        if: hashFiles('backend/requirements-dev.txt') != ''
+        run: python -m pip install -r backend/requirements-dev.txt
+
+      - name: Backend config from the committed example
+        if: hashFiles('backend/.env.example') != ''
+        # Fresh random SECRET_KEY per run (settings reject an empty/placeholder/short key).
+        # sed replaces the existing line, so this does not rely on duplicate-key precedence.
+        # DEBUG=False so the suite does not depend on DEBUG being on.
+        run: |
+          cp backend/.env.example backend/.env
+          key="$(python -c 'import secrets; print(secrets.token_urlsafe(50))')"
+          echo "::add-mask::$key"
+          sed -i "s|^SECRET_KEY=.*|SECRET_KEY=$key|; s|^DEBUG=.*|DEBUG=False|" backend/.env
+          grep -q '^SECRET_KEY=.\{50,\}' backend/.env
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        if: hashFiles('mobile/pubspec.yaml') != ''
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install mobile dependencies
+        if: hashFiles('mobile/pubspec.yaml') != ''
+        working-directory: mobile
+        run: flutter pub get
+
+      - name: Quality gate
+        run: python scripts/check.py

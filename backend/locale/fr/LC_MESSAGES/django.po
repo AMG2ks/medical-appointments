@@ -1,0 +1,77 @@
+# French translations of the MedApp backend (source strings are English).
+# Edit with `python manage.py makemessages -l fr`, then `compilemessages`; commit .po AND .mo.
+msgid ""
+msgstr ""
+"Project-Id-Version: medical-appointments\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# --- core ---
+msgid "Invalid input."
+msgstr "Données invalides."
+
+# --- accounts: API messages ---
+msgid "The date of birth cannot be in the future."
+msgstr "La date de naissance ne peut pas être dans le futur."
+
+msgid "Only patients have this profile."
+msgstr "Seuls les patients ont ce profil."
+
+msgid "A user with this email already exists."
+msgstr "Un utilisateur avec cet e-mail existe déjà."
+
+msgid "Invalid email or password."
+msgstr "E-mail ou mot de passe incorrect."
+
+msgid "Malformed token."
+msgstr "Jeton mal formé."
+
+msgid "The current password is wrong."
+msgstr "Le mot de passe actuel est incorrect."
+
+msgid "You cannot deactivate your own account."
+msgstr "Vous ne pouvez pas désactiver votre propre compte."
+
+msgid "Invalid or expired code."
+msgstr "Code invalide ou expiré."
+
+msgid "If an account exists for this email, a code was sent."
+msgstr "Si un compte existe pour cet e-mail, un code a été envoyé."
+
+# --- accounts: emails ---
+msgid "Your MedApp code"
+msgstr "Votre code MedApp"
+
+msgid "Welcome to MedApp"
+msgstr "Bienvenue sur MedApp"
+
+msgid "Hello %(name)s,"
+msgstr "Bonjour %(name)s,"
+
+msgid "Your MedApp password reset code is: %(code)s"
+msgstr "Votre code de réinitialisation de mot de passe MedApp est : %(code)s"
+
+msgid "It expires in %(minutes)s minutes and can be used only once."
+msgstr "Il expire dans %(minutes)s minutes et ne peut être utilisé qu'une seule fois."
+
+msgid "If you did not ask for this, you can ignore this email."
+msgstr "Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail."
+
+msgid "An administrator created a doctor account for you on MedApp."
+msgstr "Un administrateur vous a créé un compte médecin sur MedApp."
+
+msgid "Your invitation code is: %(code)s"
+msgstr "Votre code d'invitation est : %(code)s"
+
+msgid ""
+"In the app, open \"Forgot password\", choose \"I already have a code\" and "
+"enter this code with your email to set your password. The code is valid for "
+"%(hours)s hours and can be used only once."
+msgstr ""
+"Dans l'application, ouvrez « Mot de passe oublié », choisissez « J'ai déjà "
+"un code » et saisissez ce code avec votre e-mail pour définir votre mot de "
+"passe. Le code est valable %(hours)s heures et ne peut être utilisé qu'une "
+"seule fois."

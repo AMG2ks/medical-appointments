@@ -1,0 +1,110 @@
+{
+  "@@locale": "en",
+  "appTitle": "MedApp",
+  "navHome": "Home",
+  "navProfile": "Profile",
+  "navUsers": "Users",
+  "homeWelcome": "Welcome, {name}",
+  "@homeWelcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "languageFr": "FR",
+  "languageEn": "EN",
+  "commonRetry": "Retry",
+  "commonEmpty": "Nothing to show.",
+  "commonCancel": "Cancel",
+  "commonConfirm": "Confirm",
+  "commonLoadMore": "Load more",
+  "splashBackToLogin": "Back to login",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorValidation": "Some information is invalid.",
+  "errorNotAuthenticated": "Please log in to continue.",
+  "errorAuthenticationFailed": "Incorrect email or password.",
+  "errorTokenNotValid": "Your session has expired. Please log in again.",
+  "errorPermissionDenied": "You are not allowed to do this.",
+  "errorNotFound": "Not found.",
+  "errorThrottled": "Too many attempts. Please wait a moment and try again.",
+  "errorParse": "The request could not be read.",
+  "errorNetwork": "Cannot reach the server. Check your connection.",
+  "errorServer": "The server had a problem. Please try again later.",
+  "errorRequired": "This field is required.",
+  "errorBlank": "This field cannot be empty.",
+  "errorNull": "This field cannot be empty.",
+  "errorInvalid": "This value is not valid.",
+  "errorUnique": "This value is already used.",
+  "errorMaxLength": "This value is too long.",
+  "errorMinLength": "This value is too short.",
+  "errorInvalidChoice": "Please choose a valid option.",
+  "errorPasswordTooShort": "The password must have at least 8 characters.",
+  "errorPasswordTooCommon": "This password is too common.",
+  "errorPasswordEntirelyNumeric": "The password cannot contain only digits.",
+  "errorPasswordTooSimilar": "The password is too similar to your personal information.",
+  "errorInvalidCode": "The code is invalid or has expired.",
+  "errorCannotDeactivateSelf": "You cannot deactivate your own account.",
+  "errorDateInFuture": "The date cannot be in the future.",
+  "validationRequired": "This field is required.",
+  "validationEmail": "Enter a valid email address.",
+  "validationPasswordLength": "Use at least 8 characters.",
+  "validationPasswordMismatch": "The passwords do not match.",
+  "authLoginTitle": "Log in",
+  "authLoginButton": "Log in",
+  "authEmailLabel": "Email",
+  "authPasswordLabel": "Password",
+  "authTogglePassword": "Show or hide password",
+  "authForgotPasswordLink": "Forgot password?",
+  "authRegisterLink": "Create an account",
+  "authRegisterTitle": "Create an account",
+  "authRegisterButton": "Sign up",
+  "authFirstNameLabel": "First name",
+  "authLastNameLabel": "Last name",
+  "authPhoneLabel": "Phone (optional)",
+  "authBirthDateLabel": "Date of birth (optional)",
+  "authConfirmPasswordLabel": "Confirm password",
+  "authForgotPasswordTitle": "Forgot password",
+  "authForgotPasswordHint": "Enter your email. We will send you a 6-digit code.",
+  "authSendCodeButton": "Send the code",
+  "authHaveCodeLink": "I already have a code",
+  "authResetPasswordTitle": "Reset password",
+  "authCodeLabel": "6-digit code",
+  "authNewPasswordLabel": "New password",
+  "authResetButton": "Set the password",
+  "authResetSuccess": "Password updated. You can log in now.",
+  "authChangePasswordTitle": "Change password",
+  "authOldPasswordLabel": "Current password",
+  "authChangePasswordButton": "Change password",
+  "authPasswordChanged": "Password changed.",
+  "profileTitle": "My profile",
+  "profileSaveButton": "Save",
+  "profileSaved": "Profile saved.",
+  "profileLanguage": "Language",
+  "profileLogoutButton": "Log out",
+  "roleOptionPatient": "Patient",
+  "roleOptionDoctor": "Doctor",
+  "roleOptionAdmin": "Administrator",
+  "usersTitle": "Users",
+  "usersSearchHint": "Search by name or email",
+  "usersFilterAll": "All",
+  "usersEmpty": "No users found.",
+  "usersActivateTitle": "Activate this account?",
+  "usersDeactivateTitle": "Deactivate this account?",
+  "usersActivateMessage": "{email} will be able to log in again.",
+  "@usersActivateMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "usersDeactivateMessage": "{email} will be logged out and will not be able to log in.",
+  "@usersDeactivateMessage": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  }
+}

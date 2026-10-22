@@ -1,0 +1,39 @@
+# Local dev + demo services: PostgreSQL and Mailpit (dev mail catcher).
+# Works with `docker compose` and `podman compose`.
+# Setup: cp backend/.env.example backend/.env, then `docker compose up -d`.
+# Ports are bound to loopback only: the Django backend runs on the host.
+# Host ports can be changed with DB_PORT, MAIL_SMTP_PORT, MAIL_UI_PORT (shell or a root .env, not backend/.env).
+services:
+  db:
+    image: docker.io/library/postgres:16.15-alpine
+    restart: unless-stopped
+    # POSTGRES_USER / POSTGRES_PASSWORD / POSTGRES_DB are read from here.
+    # (Other keys in the file are harmless extras in the container.)
+    env_file:
+      - backend/.env
+    ports:
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # -h 127.0.0.1 so it only passes once the real server is up (not during initdb).
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.31.6
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MAIL_SMTP_PORT:-1025}:1025" # SMTP (EMAIL_HOST / EMAIL_PORT)
+      - "127.0.0.1:${MAIL_UI_PORT:-8025}:8025" # Web UI (default http://localhost:8025)
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
