@@ -11,6 +11,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_noop
 from rest_framework.exceptions import ErrorDetail, PermissionDenied, ValidationError
 
 from accounts.models import User
@@ -22,6 +23,15 @@ from .models import Appointment
 from .signals import EVENT_CANCELLED, EVENT_CONFIRMED, appointment_event
 
 Slot = tuple[datetime, datetime]
+
+# Reasons written by the system when an account is deactivated. Stored in English (the source
+# language, whatever language the acting admin uses) and translated when an appointment is
+# serialized (`AppointmentSerializer`), in the language of whoever reads it.
+REASON_PATIENT_DEACTIVATED = gettext_noop("Account deactivated by an administrator.")
+REASON_DOCTOR_DEACTIVATED = gettext_noop(
+    "The doctor's account was deactivated by an administrator."
+)
+AUTOMATIC_REASONS = {REASON_PATIENT_DEACTIVATED, REASON_DOCTOR_DEACTIVATED}
 
 # Most conflicting appointments listed in a `time_off_conflict` answer (the count is exact).
 TIME_OFF_CONFLICTS_LISTED = 50
@@ -292,10 +302,10 @@ def cancel_future_appointments_of(user: User, *, by: User, **kwargs) -> None:
     close. Admins: nothing to cancel."""
     if user.role == User.Role.PATIENT:
         who = Q(patient=user)
-        reason = _("Account deactivated by an administrator.")
+        reason = REASON_PATIENT_DEACTIVATED
     elif user.role == User.Role.DOCTOR:
         who = Q(doctor_id=user.pk)
-        reason = _("The doctor's account was deactivated by an administrator.")
+        reason = REASON_DOCTOR_DEACTIVATED
     else:
         return
     now = _now()

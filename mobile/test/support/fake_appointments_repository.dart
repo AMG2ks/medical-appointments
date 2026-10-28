@@ -72,6 +72,9 @@ class FakeAppointmentsRepository implements AppointmentsRepository {
   List<Slot> freeSlots;
   final int pageSize;
 
+  /// The first this many days from today have no free slot (to test the default day).
+  int emptyDays = 0;
+
   /// Set to make the matching call fail (once set it keeps failing until cleared).
   ApiException? slotsError;
   ApiException? listError;
@@ -88,6 +91,9 @@ class FakeAppointmentsRepository implements AppointmentsRepository {
   }) async {
     calls.add('slots doctor=$doctorId day=${day.year}-${day.month}-${day.day}');
     if (slotsError != null) throw slotsError!;
+    final today = DateTime.now();
+    final first = DateTime(today.year, today.month, today.day + emptyDays);
+    if (DateTime(day.year, day.month, day.day).isBefore(first)) return [];
     return [...freeSlots];
   }
 

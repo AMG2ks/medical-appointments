@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:medical_appointments/l10n/gen/app_localizations.dart';
 
 import '../../../../core/l10n/error_text.dart';
@@ -37,11 +36,7 @@ class NotificationsScreen extends ConsumerWidget {
     final id = n.appointmentId;
     final role = ref.read(currentUserProvider)?.role;
     if (id == null || role == null || role == UserRole.admin) return;
-    context.go(
-      role == UserRole.doctor
-          ? doctorAppointmentRoute(id)
-          : patientAppointmentRoute(id),
-    );
+    showAppointment(context, id: id, doctor: role == UserRole.doctor);
   }
 
   @override

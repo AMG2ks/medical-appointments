@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -68,7 +67,13 @@ final routerProvider = Provider<GoRouter>((ref) {
   ref.listen(authControllerProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
+  // The booking flow lives on the root navigator, above the tab bar: it is a modal flow with
+  // no tab of its own. Pushed inside the Doctors tab, it was still animating out in a hidden
+  // (never laid out) tab navigator when `go` switched to the Appointments tab.
+  final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+
   final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/splash',
     refreshListenable: refresh,
     redirect:
@@ -119,6 +124,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                       // Opened by `bookingRoute(doctorId)`.
                       GoRoute(
                         path: 'book',
+                        parentNavigatorKey: rootNavigatorKey,
                         builder:
                             (_, state) => BookingScreen(
                               doctorId: int.parse(state.pathParameters['id']!),

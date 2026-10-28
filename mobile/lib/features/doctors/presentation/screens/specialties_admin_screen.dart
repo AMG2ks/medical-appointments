@@ -53,6 +53,7 @@ class SpecialtiesAdminScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.specialtiesTitle)),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fabSpecialtiesAdd',
         onPressed:
             () => showDialog<void>(
               context: context,

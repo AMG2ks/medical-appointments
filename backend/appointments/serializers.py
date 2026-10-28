@@ -1,3 +1,5 @@
+from django.utils.translation import gettext
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from accounts.models import User
@@ -25,6 +27,9 @@ class CancelledBySerializer(serializers.ModelSerializer):
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
+    # The system's own reasons (account deactivation) are stored in English and translated
+    # here; a reason typed by a person is returned as written.
+    cancellation_reason = serializers.SerializerMethodField()
     patient = UserSummarySerializer(read_only=True)
     doctor = AppointmentDoctorSerializer(read_only=True)
     cancelled_by = CancelledBySerializer(read_only=True)
@@ -45,6 +50,13 @@ class AppointmentSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = fields
+
+    @extend_schema_field(serializers.CharField())
+    def get_cancellation_reason(self, obj) -> str:
+        from .services import AUTOMATIC_REASONS
+
+        reason = obj.cancellation_reason
+        return gettext(reason) if reason in AUTOMATIC_REASONS else reason
 
 
 class BookAppointmentSerializer(serializers.Serializer):

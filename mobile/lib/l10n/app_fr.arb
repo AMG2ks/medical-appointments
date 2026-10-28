@@ -192,7 +192,7 @@
   "errorBookingLimitReached": "Impossible de réserver : vous avez atteint la limite de rendez-vous à venir, vous avez déjà un rendez-vous avec ce médecin, ou un autre à cette heure.",
   "apptStatusUnknown": "Inconnu",
   "navNotifications": "Notifications",
-  "navDashboard": "Tableau de bord",
+  "navDashboard": "Accueil",
   "notifTitle": "Notifications",
   "notifMarkAllRead": "Tout marquer comme lu",
   "notifEmpty": "Aucune notification pour le moment.",
@@ -221,5 +221,9 @@
   "dashToday": "Aujourd'hui",
   "dashThisWeek": "Cette semaine",
   "dashTotal": "Total",
-  "dashByStatus": "Par statut"
+  "dashByStatus": "Par statut",
+  "errorBookingMaxUpcoming": "Vous avez atteint le nombre maximal de rendez-vous à venir. Annulez-en un pour en réserver un autre.",
+  "errorBookingSameDoctor": "Vous avez déjà un rendez-vous à venir avec ce médecin.",
+  "errorBookingOverlap": "Vous avez déjà un autre rendez-vous à cet horaire.",
+  "usersDeactivateAppointmentsWarning": "Ses rendez-vous à venir seront annulés et l'autre personne sera prévenue."
 }

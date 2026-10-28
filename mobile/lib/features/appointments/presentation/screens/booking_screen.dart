@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../core/config/env.dart';
 import '../../../../core/l10n/error_text.dart';
+import '../../../../core/network/api_exception.dart';
 import '../../../../core/utils/date_format.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import 'package:medical_appointments/l10n/gen/app_localizations.dart';
 import '../../../doctors/presentation/doctors_providers.dart';
 import '../../../doctors/presentation/screens/doctor_texts.dart';
 import '../../../notifications/local_reminders.dart';
+import '../../data/appointments_repository.dart';
 import '../../data/models/appointment.dart';
 import '../appointments_providers.dart';
 import '../appointments_routes.dart';
@@ -32,6 +33,35 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   Slot? _slot;
   bool _busy = false;
 
+  /// Set once the user picks a date: the automatic "first bookable day" must not override it.
+  bool _userPickedDay = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _showFirstBookableDay();
+  }
+
+  /// Opens on the first day that has a free slot instead of on today (often empty: past
+  /// working hours, day off, or the minimum lead time). Stops at the booking horizon.
+  Future<void> _showFirstBookableDay() async {
+    final repo = ref.read(appointmentsRepositoryProvider);
+    final today = dayOf(DateTime.now());
+    for (var i = 0; i <= Env.bookingHorizonDays; i++) {
+      final day = DateTime(today.year, today.month, today.day + i);
+      try {
+        final slots = await repo.slots(doctorId: widget.doctorId, day: day);
+        if (!mounted || _userPickedDay) return;
+        if (slots.isNotEmpty) {
+          if (i > 0) setState(() => _day = day);
+          return;
+        }
+      } catch (_) {
+        return; // the slots section shows the error for the shown day
+      }
+    }
+  }
+
   @override
   void dispose() {
     _reason.dispose();
@@ -48,6 +78,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     );
     if (picked != null) {
       setState(() {
+        _userPickedDay = true;
         _day = dayOf(picked);
         _slot = null;
       });
@@ -73,20 +104,22 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).apptBooked)),
       );
-      // Leave the booking screen first: `go` into another tab would otherwise leave it
-      // alive (and frozen on "busy") in the Doctors tab's navigator.
-      final router = GoRouter.of(context);
-      if (router.canPop()) router.pop();
-      router.go(patientAppointmentRoute(booked.id));
+      // One `go` to the Appointments tab: the booking screen sits on the root navigator
+      // (see router.dart), so it is simply removed and the tab bar appears below it.
+      showAppointment(context, id: booked.id);
     } catch (e) {
       if (!mounted) return;
       showApiError(context, e);
-      // Someone else may have taken it: show the up-to-date slots.
+      // Only a slot that is gone is deselected (and the slots reloaded); after a limit error
+      // (`booking_limit_reached`) the choice stays so the user can read the message.
+      final slotGone =
+          e is ApiException &&
+          (e.code == 'slot_taken' || e.code == 'slot_not_available');
       setState(() {
-        _slot = null;
+        if (slotGone) _slot = null;
         _busy = false;
       });
-      ref.invalidate(slotsProvider);
+      if (slotGone) ref.invalidate(slotsProvider);
     }
   }
 

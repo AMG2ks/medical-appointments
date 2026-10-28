@@ -39,6 +39,14 @@ class _NotificationsHostState extends ConsumerState<NotificationsHost>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _startTimer();
+    // Subscribe after the first frame: a provider that is stale (just after a login) is
+    // rebuilt on its first listen, and that must not happen while widgets are building
+    // ("setState() called during build").
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.listenManual(reminderSyncProvider, (_, _) {});
+      ref.listenManual(unreadCountProvider, _onCountChanged);
+    });
   }
 
   @override
@@ -111,8 +119,6 @@ class _NotificationsHostState extends ConsumerState<NotificationsHost>
 
   @override
   Widget build(BuildContext context) {
-    ref.watch(reminderSyncProvider);
-    ref.listen(unreadCountProvider, _onCountChanged);
     return widget.child;
   }
 }

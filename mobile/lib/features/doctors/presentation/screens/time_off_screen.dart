@@ -67,6 +67,7 @@ class TimeOffScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.timeOffTitle)),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fabTimeOffAdd',
         onPressed:
             () => showDialog<void>(
               context: context,

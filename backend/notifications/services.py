@@ -15,7 +15,9 @@ from django.core.mail import send_mail
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils import timezone, translation
+from django.utils.dateformat import time_format
 from django.utils.formats import date_format
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User
@@ -141,6 +143,15 @@ def create_due_reminders(now: datetime | None = None) -> int:
 # --- worker, step b: emails ---
 
 
+def _when(start: datetime) -> str:
+    """`Nov. 5, 2026 at 10:00` / `5 novembre 2026 à 10:00`: the same 24 h shape in both
+    languages, and it never ends with a period (the sentence adds its own)."""
+    return gettext("%(date)s at %(time)s") % {
+        "date": date_format(start, "DATE_FORMAT"),
+        "time": time_format(start, "H:i"),
+    }
+
+
 def render_email(notification: Notification) -> tuple[str, str]:
     """(subject, body) in the recipient's preferred language."""
     user = notification.user
@@ -151,7 +162,7 @@ def render_email(notification: Notification) -> tuple[str, str]:
             "user": user,
             "doctor_name": data.get("doctor_name", ""),
             "patient_name": data.get("patient_name", ""),
-            "when": date_format(start, "DATETIME_FORMAT"),
+            "when": _when(start),
             "cancelled_by": data.get("cancelled_by", ""),
             "reason": _flat(data.get("reason", "")),
             "reason_by": REASON_BY.get(data.get("cancelled_by", ""), ""),

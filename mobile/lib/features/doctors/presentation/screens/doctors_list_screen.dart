@@ -51,6 +51,7 @@ class _DoctorsListScreenState extends ConsumerState<DoctorsListScreen> {
           widget.createPath == null
               ? null
               : FloatingActionButton.extended(
+                heroTag: 'fabDoctorsCreate',
                 onPressed: () => context.push(widget.createPath!),
                 icon: const Icon(Icons.add),
                 label: Text(l10n.doctorsAddButton),

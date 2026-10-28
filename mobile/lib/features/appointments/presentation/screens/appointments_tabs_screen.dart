@@ -50,15 +50,23 @@ class AppointmentsTabsScreen extends StatelessWidget {
           title: Text(title),
           bottom: TabBar(tabs: [for (final tab in tabs) Tab(text: tab.label)]),
         ),
-        body: TabBarView(
-          children: [
-            for (final tab in tabs)
-              AppointmentsList(
-                tab: tab,
-                showPatient: showPatient,
-                detailPath: detailPath,
-              ),
-          ],
+        // Not a TabBarView: its PageView viewport asserted ("relayout boundary") when the
+        // language changed while this screen sat hidden under a detail page or in another
+        // tab. The tab bar drives a plain switch instead (tapping a tab; no swipe).
+        body: Builder(
+          builder: (context) {
+            final controller = DefaultTabController.of(context);
+            return ListenableBuilder(
+              listenable: controller,
+              builder:
+                  (context, _) => AppointmentsList(
+                    key: ValueKey(controller.index),
+                    tab: tabs[controller.index],
+                    showPatient: showPatient,
+                    detailPath: detailPath,
+                  ),
+            );
+          },
         ),
       ),
     );

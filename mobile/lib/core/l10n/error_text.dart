@@ -62,6 +62,16 @@ String errorTextFor(AppLocalizations l10n, Object? error) {
     if (error.code == 'validation_error' && nonField != null) {
       return fieldErrorTextFor(l10n, nonField);
     }
+    if (error.code == 'booking_limit_reached') {
+      // `details.reason` says which of the three limits was hit.
+      final specific = switch (error.details['reason']) {
+        'max_upcoming' => l10n.errorBookingMaxUpcoming,
+        'same_doctor' => l10n.errorBookingSameDoctor,
+        'overlap' => l10n.errorBookingOverlap,
+        _ => null,
+      };
+      if (specific != null) return specific;
+    }
     return _knownCode(l10n, error.code) ??
         (error.message.isNotEmpty ? error.message : l10n.errorGeneric);
   }

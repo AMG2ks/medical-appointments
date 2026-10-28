@@ -65,9 +65,9 @@ class TestEmails:
         assert fr.subject == "Rendez-vous confirmé"
         assert "Bonjour Pat," in fr.body
         assert "Dr Doc Tor" in fr.body
-        assert "5 novembre 2026 10:00" in fr.body  # clinic time (Tunis), not UTC
+        assert "5 novembre 2026 à 10:00" in fr.body  # clinic time (Tunis), not UTC
         assert en.subject == "New appointment booked"
-        assert "Pat Ient booked an appointment with you for Nov. 5, 2026, 10 a.m." in en.body
+        assert "Pat Ient booked an appointment with you for Nov. 5, 2026 at 10:00." in en.body
         assert set(Notification.objects.values_list("email_status", flat=True)) == {"sent"}
 
     def test_each_email_is_sent_once(self, book):

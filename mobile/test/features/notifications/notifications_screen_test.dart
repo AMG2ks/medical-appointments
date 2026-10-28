@@ -28,6 +28,14 @@ void main() {
           builder: (_, _) => const NotificationsScreen(),
         ),
         GoRoute(
+          path: '/patient/appointments',
+          builder: (_, _) => const Scaffold(body: Text('patient list')),
+        ),
+        GoRoute(
+          path: '/doctor',
+          builder: (_, _) => const Scaffold(body: Text('doctor list')),
+        ),
+        GoRoute(
           path: '/patient/appointments/:id',
           builder:
               (_, state) => Scaffold(

@@ -6,6 +6,7 @@ from datetime import time, timedelta
 import pytest
 from django.contrib import admin as django_admin
 from django.db import connections
+from django.utils import translation
 from rest_framework.throttling import ScopedRateThrottle
 
 from accounts import services as accounts_services
@@ -220,6 +221,30 @@ class TestDeactivation:
         assert sorted(events) == sorted(
             [(future.pk, "cancelled", admin_user.pk), (later.pk, "cancelled", admin_user.pk)]
         )
+
+    def test_the_system_reason_is_stored_in_english_and_shown_in_the_readers_language(
+        self, auth_client, admin_user, patient, profile, make_appointment
+    ):
+        appointment = make_appointment(at(DAY, 10))
+        with translation.override("fr"):  # an admin working in French
+            accounts_services.set_user_active(patient, False, by=admin_user)
+        appointment.refresh_from_db()
+        assert appointment.cancellation_reason == "Account deactivated by an administrator."
+        url = f"{APPOINTMENTS}{appointment.pk}/"
+        admin = auth_client(admin_user)
+        english = admin.get(url, HTTP_ACCEPT_LANGUAGE="en").data["cancellation_reason"]
+        french = admin.get(url, HTTP_ACCEPT_LANGUAGE="fr").data["cancellation_reason"]
+        assert english == "Account deactivated by an administrator."
+        assert french == "Compte désactivé par un administrateur."
+
+    def test_a_reason_typed_by_a_person_is_never_translated(
+        self, auth_client, patient, profile, make_appointment
+    ):
+        appointment = make_appointment(at(DAY, 10))
+        client = auth_client(patient)
+        client.post(f"{APPOINTMENTS}{appointment.pk}/cancel/", {"reason": "Congé"}, format="json")
+        data = client.get(f"{APPOINTMENTS}{appointment.pk}/", HTTP_ACCEPT_LANGUAGE="en").data
+        assert data["cancellation_reason"] == "Congé"
 
     def test_slots_are_freed(
         self, auth_client, admin_user, patient, other_patient, profile, make_appointment

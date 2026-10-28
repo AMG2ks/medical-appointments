@@ -370,5 +370,9 @@
   "dashToday": "Today",
   "dashThisWeek": "This week",
   "dashTotal": "Total",
-  "dashByStatus": "By status"
+  "dashByStatus": "By status",
+  "errorBookingMaxUpcoming": "You have reached the maximum number of upcoming appointments. Cancel one to book another.",
+  "errorBookingSameDoctor": "You already have an upcoming appointment with this doctor.",
+  "errorBookingOverlap": "You already have another appointment at that time.",
+  "usersDeactivateAppointmentsWarning": "Their future appointments will be cancelled and the other person will be notified."
 }

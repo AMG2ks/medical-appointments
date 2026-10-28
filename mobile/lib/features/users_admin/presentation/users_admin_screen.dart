@@ -37,7 +37,12 @@ class _UsersAdminScreenState extends ConsumerState<UsersAdminScreen> {
             content: Text(
               value
                   ? l10n.usersActivateMessage(user.email)
-                  : l10n.usersDeactivateMessage(user.email),
+                  : [
+                    l10n.usersDeactivateMessage(user.email),
+                    // Patients and doctors: their future appointments are cancelled.
+                    if (user.role != UserRole.admin)
+                      l10n.usersDeactivateAppointmentsWarning,
+                  ].join('\n\n'),
             ),
             actions: [
               TextButton(

@@ -178,3 +178,6 @@ msgstr "Le compte du médecin a été désactivé par un administrateur."
 
 msgid "Enter a valid name."
 msgstr "Saisissez un nom valide."
+
+msgid "%(date)s at %(time)s"
+msgstr "%(date)s à %(time)s"

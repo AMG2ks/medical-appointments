@@ -60,14 +60,16 @@ class AvailabilityScreen extends ConsumerWidget {
         title: Text(l10n.availabilityTitle),
         actions: [
           if (timeOffPath != null)
-            TextButton.icon(
+            // Icon only (tooltip + semantics): a text label ate the room of the title.
+            IconButton(
+              tooltip: l10n.timeOffTitle,
               onPressed: () => context.push(timeOffPath!),
               icon: const Icon(Icons.beach_access_outlined),
-              label: Text(l10n.timeOffTitle),
             ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fabAvailabilityAdd',
         onPressed:
             () => showDialog<void>(
               context: context,
@@ -194,26 +196,25 @@ class _AvailabilityDialogState extends State<AvailabilityDialog> {
               onChanged: (day) => setState(() => _weekday = day ?? _weekday),
             ),
             const SizedBox(height: 16),
-            Row(
-              spacing: 12,
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _pick(true),
-                    child: Text(
-                      '${l10n.availabilityStartLabel} ${_start.format(context)}',
-                    ),
-                  ),
+            // One under the other: "From 9:00 AM" does not fit half a dialog in every language.
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => _pick(true),
+                child: Text(
+                  '${l10n.availabilityStartLabel} ${_start.format(context)}',
                 ),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _pick(false),
-                    child: Text(
-                      '${l10n.availabilityEndLabel} ${_end.format(context)}',
-                    ),
-                  ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => _pick(false),
+                child: Text(
+                  '${l10n.availabilityEndLabel} ${_end.format(context)}',
                 ),
-              ],
+              ),
             ),
             if (!_endAfterStart || _error != null)
               Padding(

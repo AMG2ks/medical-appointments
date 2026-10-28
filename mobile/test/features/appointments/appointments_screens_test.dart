@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medical_appointments/core/network/api_exception.dart';
@@ -66,6 +67,10 @@ void main() {
             builder: (_, _) => const BookingScreen(doctorId: 10),
           ),
           GoRoute(
+            path: '/patient/appointments',
+            builder: (_, _) => const Scaffold(body: Text('my list')),
+          ),
+          GoRoute(
             path: '/patient/appointments/:id',
             builder:
                 (_, state) => Scaffold(
@@ -123,6 +128,41 @@ void main() {
         find.text('Confirm the appointment'),
         findsNothing,
       ); // selection cleared
+    });
+
+    testWidgets('opens on the first day that has a free slot, not on today', (
+      tester,
+    ) async {
+      repo.emptyDays = 2;
+      await pump(tester);
+      final target = DateTime.now().add(const Duration(days: 2));
+      expect(
+        find.textContaining(DateFormat.yMMMEd('en').format(target)),
+        findsOneWidget,
+      );
+      expect(find.text('09:00'), findsOneWidget);
+    });
+
+    testWidgets('a limit error names its cause and keeps the chosen slot', (
+      tester,
+    ) async {
+      await pump(tester);
+      repo.bookError = const ApiException(
+        statusCode: 409,
+        code: 'booking_limit_reached',
+        details: {'reason': 'same_doctor'},
+      );
+      await tester.tap(find.text('09:00'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Confirm the appointment'));
+      await tester.tap(find.text('Confirm the appointment'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('You already have an upcoming appointment with this doctor.'),
+        findsOneWidget,
+      );
+      expect(find.text('Confirm the appointment'), findsOneWidget); // slot kept
     });
 
     testWidgets('no free slot: empty message', (tester) async {
@@ -402,7 +442,10 @@ void main() {
       tester,
     ) async {
       repo = FakeAppointmentsRepository();
+      // Same structure as app/router.dart: the booking flow is on the root navigator.
+      final rootKey = GlobalKey<NavigatorState>();
       final router = GoRouter(
+        navigatorKey: rootKey,
         initialLocation: '/patient/book',
         routes: [
           StatefulShellRoute.indexedStack(
@@ -433,6 +476,7 @@ void main() {
                     routes: [
                       GoRoute(
                         path: 'book',
+                        parentNavigatorKey: rootKey,
                         builder: (_, _) => const BookingScreen(doctorId: 10),
                       ),
                     ],
