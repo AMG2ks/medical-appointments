@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/appointments/presentation/appointments_routes.dart';
+import '../features/appointments/presentation/screens/appointment_detail_screen.dart';
+import '../features/appointments/presentation/screens/appointments_tabs_screen.dart';
+import '../features/appointments/presentation/screens/booking_screen.dart';
 import '../features/auth/data/models/user.dart';
 import '../features/auth/presentation/auth_controller.dart';
 import '../features/auth/presentation/screens/change_password_screen.dart';
@@ -20,7 +24,6 @@ import '../features/doctors/presentation/screens/doctors_list_screen.dart';
 import '../features/doctors/presentation/screens/specialties_admin_screen.dart';
 import '../features/doctors/presentation/screens/time_off_screen.dart';
 import '../features/users_admin/presentation/users_admin_screen.dart';
-import 'home_placeholder.dart';
 import 'shells/admin_shell.dart';
 import 'shells/doctor_shell.dart';
 import 'shells/patient_shell.dart';
@@ -111,13 +114,35 @@ final routerProvider = Provider<GoRouter>((ref) {
                           canBook: true,
                         ),
                     routes: [
-                      // M3: replace the placeholder with the booking flow
-                      // (opened by `bookingRoute(doctorId)`).
+                      // Opened by `bookingRoute(doctorId)`.
                       GoRoute(
                         path: 'book',
-                        builder: (_, _) => const BookingPlaceholderScreen(),
+                        builder:
+                            (_, state) => BookingScreen(
+                              doctorId: int.parse(state.pathParameters['id']!),
+                            ),
                       ),
                     ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/patient/appointments',
+                builder:
+                    (_, _) => const MyAppointmentsScreen(
+                      detailPath: patientAppointmentRoute,
+                    ),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder:
+                        (_, state) => AppointmentDetailScreen(
+                          appointmentId: int.parse(state.pathParameters['id']!),
+                        ),
                   ),
                 ],
               ),
@@ -140,7 +165,19 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/doctor',
-                builder: (_, _) => const HomePlaceholder(),
+                builder:
+                    (_, _) => const DoctorAgendaScreen(
+                      detailPath: doctorAppointmentRoute,
+                    ),
+                routes: [
+                  GoRoute(
+                    path: 'appointments/:id',
+                    builder:
+                        (_, state) => AppointmentDetailScreen(
+                          appointmentId: int.parse(state.pathParameters['id']!),
+                        ),
+                  ),
+                ],
               ),
             ],
           ),

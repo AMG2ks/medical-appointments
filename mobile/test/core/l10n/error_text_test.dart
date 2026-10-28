@@ -39,6 +39,12 @@ void main() {
       'does_not_exist',
       'incorrect_type',
       'specialty_in_use',
+      'slot_taken',
+      'slot_not_available',
+      'cancellation_too_late',
+      'invalid_status_transition',
+      'time_off_conflict',
+      'booking_limit_reached',
     ]) {
       final e = ApiException(code: code, message: 'SERVER');
       expect(errorTextFor(en, e), isNot('SERVER'), reason: code);

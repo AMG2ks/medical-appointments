@@ -119,7 +119,7 @@ void main() {
       expect(find.text('Book an appointment'), findsNothing);
     });
 
-    testWidgets('Book opens the booking route (M3 hook)', (tester) async {
+    testWidgets('Book opens the booking route', (tester) async {
       final router = GoRouter(
         initialLocation: '/doctors/10',
         routes: [
@@ -130,7 +130,7 @@ void main() {
           ),
           GoRoute(
             path: '/patient/doctors/10/book',
-            builder: (_, _) => const BookingPlaceholderScreen(),
+            builder: (_, _) => const Scaffold(body: Text('booking flow')),
           ),
         ],
       );
@@ -145,7 +145,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Book an appointment'));
       await tester.pumpAndSettle();
-      expect(find.text('Booking will be available soon.'), findsOneWidget);
+      expect(find.text('booking flow'), findsOneWidget);
     });
   });
 

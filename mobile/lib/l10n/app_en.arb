@@ -1,17 +1,8 @@
 {
   "@@locale": "en",
   "appTitle": "MedApp",
-  "navHome": "Home",
   "navProfile": "Profile",
   "navUsers": "Users",
-  "homeWelcome": "Welcome, {name}",
-  "@homeWelcome": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "languageFr": "FR",
   "languageEn": "EN",
   "commonRetry": "Retry",
@@ -144,7 +135,6 @@
   },
   "doctorsBioEmpty": "No biography yet.",
   "doctorsBookButton": "Book an appointment",
-  "doctorsBookComingSoon": "Booking will be available soon.",
   "doctorsAddButton": "Add a doctor",
   "doctorsCreateTitle": "New doctor",
   "doctorsCreateInfo": "The doctor receives an email with a code to set a password.",
@@ -179,5 +169,88 @@
   "specialtiesNameEnLabel": "Name (English)",
   "specialtiesDeleteTitle": "Delete this specialty?",
   "errorIncorrectType": "This value has the wrong type.",
-  "doctorsInvitePending": "Invitation pending"
+  "doctorsInvitePending": "Invitation pending",
+  "navAppointments": "Appointments",
+  "navAgenda": "Agenda",
+  "apptStatusConfirmed": "Confirmed",
+  "apptStatusCancelled": "Cancelled",
+  "apptStatusCompleted": "Completed",
+  "apptStatusNoShow": "No-show",
+  "apptTabUpcoming": "Upcoming",
+  "apptTabPast": "Past",
+  "apptTabToday": "Today",
+  "apptMyTitle": "My appointments",
+  "apptAgendaTitle": "Agenda",
+  "apptEmptyUpcoming": "No upcoming appointments.",
+  "apptEmptyPast": "No past appointments.",
+  "apptEmptyToday": "No appointments today.",
+  "apptBookTitle": "Book an appointment",
+  "apptPickDate": "Date",
+  "apptSlotsTitle": "Available times",
+  "apptNoSlots": "No free time on this day. Try another date.",
+  "apptBookReasonLabel": "Reason for the visit (optional)",
+  "apptConfirmButton": "Confirm the appointment",
+  "apptSelectedSlot": "Selected: {when}",
+  "@apptSelectedSlot": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "apptBooked": "Appointment confirmed.",
+  "apptDetailTitle": "Appointment",
+  "apptDoctorLabel": "Doctor",
+  "apptPatientLabel": "Patient",
+  "apptWhenLabel": "When",
+  "apptReasonLabel": "Reason",
+  "apptNoReason": "No reason given.",
+  "apptCancelledByPatient": "Cancelled by the patient.",
+  "apptCancelledByDoctor": "Cancelled by the doctor.",
+  "apptCancelledByAdmin": "Cancelled by an administrator.",
+  "apptCancellationReason": "Cancellation reason: {reason}",
+  "@apptCancellationReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "apptCancelButton": "Cancel the appointment",
+  "apptCancelTitle": "Cancel this appointment?",
+  "apptCancelReasonOptional": "Reason (optional)",
+  "apptCancelReasonRequired": "Reason (required)",
+  "apptCancelKeep": "Keep it",
+  "apptCancelled": "Appointment cancelled.",
+  "apptCompleteButton": "Mark as completed",
+  "apptNoShowButton": "Mark as no-show",
+  "apptCompleted": "Marked as completed.",
+  "apptMarkedNoShow": "Marked as no-show.",
+  "errorSlotTaken": "This time was just taken. Please choose another one.",
+  "errorSlotNotAvailable": "This time is not available anymore.",
+  "errorCancellationTooLate": "It is too late to cancel online. Please contact the doctor.",
+  "errorInvalidStatusTransition": "This appointment cannot be changed this way.",
+  "errorTimeOffConflict": "Appointments are already booked in this period. Cancel them first.",
+  "timeOffConflictTitle": "Appointments in this period",
+  "timeOffConflictLine": "{when} · {patient}",
+  "@timeOffConflictLine": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      },
+      "patient": {
+        "type": "String"
+      }
+    }
+  },
+  "timeOffConflictMore": "{count, plural, one{and 1 more} other{and {count} more}}",
+  "@timeOffConflictMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorBookingLimitReached": "You cannot book this appointment: you reached the limit of upcoming appointments, already have one with this doctor, or have another one at that time.",
+  "apptStatusUnknown": "Unknown"
 }

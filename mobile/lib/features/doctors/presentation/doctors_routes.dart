@@ -1,5 +1,3 @@
-/// Route of the booking flow for a doctor.
-///
-/// M3 HOOK: the "Book" button of the doctor detail opens this route. Today it shows
-/// `BookingPlaceholderScreen`; M3 replaces the builder in `app/router.dart` with its flow.
+/// Route of the booking flow for a doctor (`BookingScreen` of the appointments feature,
+/// mounted in `app/router.dart`). The "Book" button of the doctor detail opens it.
 String bookingRoute(int doctorId) => '/patient/doctors/$doctorId/book';

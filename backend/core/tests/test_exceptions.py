@@ -66,5 +66,13 @@ def test_business_error_keeps_code_and_status():
     assert response.data == {"error": {"code": "slot_taken", "message": "Taken.", "fields": {}}}
 
 
+def test_business_error_details_are_added_only_when_given():
+    response = api_exception_handler(
+        BusinessError("time_off_conflict", "Busy.", status_code=409, details={"count": 1}), {}
+    )
+    assert response.data["error"]["details"] == {"count": 1}
+    assert response.data["error"]["fields"] == {}
+
+
 def test_unexpected_error_is_left_to_django():
     assert api_exception_handler(RuntimeError("boom"), {}) is None

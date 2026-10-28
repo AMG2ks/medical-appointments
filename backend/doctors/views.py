@@ -1,12 +1,10 @@
-from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics, status
 from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 
-from accounts.models import User
 from accounts.permissions import IsAdmin, IsDoctor
 
 from . import services
@@ -19,6 +17,7 @@ from .serializers import (
     TimeOffSerializer,
     WeeklyAvailabilitySerializer,
 )
+from .services import visible_doctors  # also importable from here (kept for older imports)
 
 TAG = ["doctors"]
 
@@ -86,18 +85,6 @@ class BoundedSearchFilter(SearchFilter):
     def get_search_terms(self, request):
         value = request.query_params.get(self.search_param, "")[:SEARCH_MAX_LENGTH]
         return value.replace(",", " ").split()[:SEARCH_MAX_TERMS]
-
-
-def visible_doctors(user):
-    """Doctors a user may see: active doctor accounts. Doctors who have not accepted their
-    invite yet (no usable password) are hidden from everyone but admins, so nobody can book
-    an account that cannot log in. M3 booking must apply the same rule."""
-    doctors = DoctorProfile.objects.filter(
-        user__is_active=True, user__role=User.Role.DOCTOR
-    ).select_related("user", "specialty")
-    if getattr(user, "role", None) != User.Role.ADMIN:  # anonymous: schema generation
-        doctors = doctors.exclude(user__password__startswith=UNUSABLE_PASSWORD_PREFIX)
-    return doctors
 
 
 class DoctorListCreateView(generics.ListCreateAPIView):
@@ -236,12 +223,28 @@ class TimeOffListCreateView(DoctorMeMixin, generics.ListCreateAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-    @extend_schema(tags=TAG)
+    @extend_schema(
+        tags=TAG,
+        responses={
+            201: TimeOffSerializer,
+            409: OpenApiResponse(
+                description="`time_off_conflict`: confirmed appointments overlap the period "
+                "(`error.details` lists them)."
+            ),
+        },
+    )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        serializer.save(doctor=self.get_doctor())
+        # 409 `time_off_conflict` while confirmed appointments fall in the period.
+        data = serializer.validated_data
+        serializer.instance = services.create_time_off(
+            self.get_doctor(),
+            start_at=data["start_at"],
+            end_at=data["end_at"],
+            reason=data.get("reason", ""),
+        )
 
 
 class TimeOffDetailView(DoctorMeMixin, generics.DestroyAPIView):

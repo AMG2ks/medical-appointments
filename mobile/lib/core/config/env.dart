@@ -5,6 +5,13 @@ class Env {
 
   static const apiBaseUrl = String.fromEnvironment('API_BASE_URL');
 
+  /// Last bookable day = today + this many days (same value as the backend's
+  /// `BOOKING_HORIZON_DAYS`; the server is the judge, this only limits the date picker).
+  static const bookingHorizonDays = int.fromEnvironment(
+    'BOOKING_HORIZON_DAYS',
+    defaultValue: 30,
+  );
+
   /// Call first in `main()`: stop with a clear message instead of failing on every request.
   static void validate() {
     if (apiBaseUrl.isEmpty) {

@@ -48,7 +48,7 @@ class DoctorDetailScreen extends ConsumerWidget {
                 Text(d.bio.isEmpty ? l10n.doctorsBioEmpty : d.bio),
                 if (canBook) ...[
                   const SizedBox(height: 32),
-                  // M3 HOOK: this route opens M3's booking flow (see doctors_routes.dart).
+                  // Opens the booking flow of the appointments feature.
                   FilledButton(
                     onPressed: () => context.push(bookingRoute(d.id)),
                     child: Text(l10n.doctorsBookButton),
@@ -57,20 +57,6 @@ class DoctorDetailScreen extends ConsumerWidget {
               ],
             ),
       ),
-    );
-  }
-}
-
-/// Stand-in for M3's booking flow until it exists. M3: replace it in `app/router.dart`.
-class BookingPlaceholderScreen extends StatelessWidget {
-  const BookingPlaceholderScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.doctorsBookButton)),
-      body: Center(child: Text(l10n.doctorsBookComingSoon)),
     );
   }
 }

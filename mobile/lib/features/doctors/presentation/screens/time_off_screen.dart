@@ -105,6 +105,39 @@ class TimeOffScreen extends ConsumerWidget {
   }
 }
 
+/// The appointments in the way of a time off (the doctor cancels them first).
+class TimeOffConflictList extends StatelessWidget {
+  const TimeOffConflictList({super.key, required this.conflict});
+
+  final TimeOffConflict conflict;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final more = conflict.count - conflict.items.length;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.timeOffConflictTitle,
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          for (final item in conflict.items)
+            Text(
+              l10n.timeOffConflictLine(
+                formatDateTime(context, item.startAt),
+                item.patientName,
+              ),
+            ),
+          if (more > 0) Text(l10n.timeOffConflictMore(more)),
+        ],
+      ),
+    );
+  }
+}
+
 /// Pick a date range (whole days: from the first day at 00:00 to the end of the last day).
 class TimeOffDialog extends StatefulWidget {
   const TimeOffDialog({super.key, required this.onSave});
@@ -194,6 +227,8 @@ class _TimeOffDialogState extends State<TimeOffDialog> {
                 errorText(context, _error),
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
+            if (TimeOffConflict.from(_error) case final conflict?)
+              TimeOffConflictList(conflict: conflict),
           ],
         ),
       ),

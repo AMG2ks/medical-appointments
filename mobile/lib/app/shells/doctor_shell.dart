@@ -17,8 +17,8 @@ class DoctorShell extends StatelessWidget {
       shell: shell,
       destinations: [
         NavigationDestination(
-          icon: const Icon(Icons.home_outlined),
-          label: l10n.navHome,
+          icon: const Icon(Icons.event_note_outlined),
+          label: l10n.navAgenda,
         ),
         NavigationDestination(
           icon: const Icon(Icons.schedule_outlined),

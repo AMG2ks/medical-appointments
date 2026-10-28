@@ -26,6 +26,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from core.exceptions import BusinessError
 
 from .models import PasswordResetCode, PatientProfile, User
+from .signals import user_deactivated
 
 RESEND_COOLDOWN_SECONDS = 60
 FAILED_ATTEMPTS_WINDOW = timedelta(hours=24)
@@ -111,10 +112,12 @@ def set_user_active(user: User, is_active: bool, *, by: User, ip: str | None = N
     if not is_active and user.pk == by.pk:
         _audit(action, actor=by.pk, target=user.pk, ip=ip, outcome="refused_self")
         raise BusinessError("cannot_deactivate_self", _("You cannot deactivate your own account."))
-    user.is_active = is_active
-    user.save(update_fields=["is_active"])
-    if not is_active:
-        revoke_all_refresh_tokens(user)
+    with transaction.atomic():
+        user.is_active = is_active
+        user.save(update_fields=["is_active"])
+        if not is_active:
+            revoke_all_refresh_tokens(user)
+            user_deactivated.send(sender=User, user=user, by=by)
     _audit(action, actor=by.pk, target=user.pk, ip=ip)
     return user
 

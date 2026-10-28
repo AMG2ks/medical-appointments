@@ -15,10 +15,12 @@ Conventions (error shape and codes, i18n, pagination, env, git, licenses): see [
 | Availability | Weekly windows in wall-clock time of `settings.TIME_ZONE` (`APP_TIME_ZONE`, default `Africa/Tunis`). Windows of one weekday must not overlap (touching, e.g. 09-12 and 12-14, is allowed) | DST-safe: "09:00" stays 09:00 local |
 | Time off | Absolute `start_at`/`end_at` instants (aware datetimes), any length, may span days | Holidays, one afternoon, etc. |
 | Public doctor card | `id, first_name, last_name, specialty, bio, consultation_minutes, invite_pending`. **No email or phone**: patients do not need them. The doctor's own `/doctors/me/` and the admin create answer add `email` and `phone` | Data minimisation |
-| **Visibility rule** | A doctor is *visible* when the account is active, has `role=doctor` **and has a usable password** (the invite was accepted). `GET doctors/` and `GET doctors/{id}/` return only visible doctors to patients and doctors (`404` otherwise). **Admins** also see doctors whose invite is still pending, flagged `"invite_pending": true`. Implemented once in `views.visible_doctors(user)` | Nobody can book an account that cannot log in yet |
+| **Visibility rule** | A doctor is *visible* when the account is active, has `role=doctor` **and has a usable password** (the invite was accepted). `GET doctors/` and `GET doctors/{id}/` return only visible doctors to patients and doctors (`404` otherwise). **Admins** also see doctors whose invite is still pending, flagged `"invite_pending": true`. Implemented once in `services.visible_doctors(user)` (still importable from `views`) | Nobody can book an account that cannot log in yet |
 | Lists | Every list is paginated (`page_size` max 100). The app asks `page_size=100` for the small reference lists (specialties, availability, time off) instead of paging them | TEAM_PLAN §4.3 |
 | Bounded input | `bio` ≤ 2000 characters (`models.BIO_MAX_LENGTH`); `consultation_minutes` 5–240 (`models.CONSULTATION_MINUTES_MIN/MAX`, also a DB check); the doctors `search` keeps at most the first 100 characters and 5 words | Limits live once, in `models.py` / `views.py` |
 | Doctor creation | One transaction creates `User(role=doctor, unusable password)` + `DoctorProfile`; the invite email (`send_password_code(user, "invite")`) is sent in `transaction.on_commit`, so a rollback never mails a code for a missing account. A mail failure after commit is logged (`logger.exception`, no address) and the request still answers `201`: the doctor can use "Forgot password". Two admins creating the same email at once: the DB unique constraint is mapped to `400 validation_error` with `email: [unique]` | Contract of `send_password_code` |
+| Time off over booked days | `POST doctors/me/time-off/` is refused with `409 time_off_conflict` (+ `error.details` listing the confirmed appointments in the way) while any `confirmed` appointment overlaps the period; the doctor cancels them first. The check runs in `services.create_time_off` under the doctor-row lock that booking also takes. `doctors` never imports `appointments`: the latter registers a guard with `register_time_off_guard` in its `AppConfig.ready()` | Booked patients must not be silently abandoned (M3, see APPOINTMENTS.md) |
+| Availability edits vs bookings | Editing or deleting weekly availability never touches existing appointments: they stay valid and only the free slots change | A booking is a promise; the doctor cancels it explicitly if needed |
 | Concurrent availability edits | `services.save_availability` locks the `DoctorProfile` row (`select_for_update`) before checking overlaps | Two requests cannot both pass the check |
 
 ## 2. Data model (`doctors/models.py`)
@@ -102,6 +104,7 @@ Every error has the shape of TEAM_PLAN §4.3; the app translates by `code`.
 
 | Status | `code` | When | Added to ARB |
 |---|---|---|---|
+| 409 | `time_off_conflict` | `POST doctors/me/time-off/` over confirmed appointments (details: `{"count", "appointments": [{"id", "start_at", "end_at", "patient_name"}]}`, first 50) | `errorTimeOffConflict` |
 | 400 | `availability_overlap` | A weekly window overlaps another window of the same weekday (create or update) | `errorAvailabilityOverlap` |
 | 409 | `specialty_in_use` | `DELETE specialties/{id}/` while doctors use it | `errorSpecialtyInUse` |
 | 400 | `validation_error` | Field codes below (also a duplicate doctor email, even in a race) | – |
@@ -116,7 +119,7 @@ from doctors.services import working_intervals
 
 working_intervals(doctor: DoctorProfile, day: datetime.date) -> list[tuple[datetime, datetime]]
 ```
-- **M3 booking must also reject doctors who are not visible** (inactive, not `role=doctor`, or invite pending): reuse `doctors.views.visible_doctors(request.user)` (or the same filter) when resolving the doctor of a slot or booking request, so a pending doctor can be neither listed nor booked by direct id.
+- **M3 booking must also reject doctors who are not visible** (inactive, not `role=doctor`, or invite pending): reuse `doctors.services.visible_doctors(request.user)` (or the same filter) when resolving the doctor of a slot or booking request, so a pending doctor can be neither listed nor booked by direct id.
 - The `(start, end)` pairs are the windows in which the doctor works on calendar `day`, **sorted, timezone-aware** (in `settings.TIME_ZONE`), with all `TimeOff` already removed. A window split by a time off gives two pairs; fully covered gives none; no availability that weekday gives `[]`.
 - `day` is a calendar date in `settings.TIME_ZONE`. A time off that starts before or ends after `day` (spanning days) is clipped correctly.
 - Availability is wall-clock, so on a DST change day a "09:00–12:00" window is still 09:00–12:00 local. All arithmetic is done on UTC instants. A nonexistent local time (spring-forward gap) resolves to the instant after the gap, so a window lying entirely inside the missing hour (e.g. 02:30–03:15 on 2026-03-29 in Paris) yields no interval; an ambiguous one (fall-back) resolves to its first occurrence.
@@ -152,8 +155,9 @@ Routes and tabs (in `app/router.dart` and the shells):
 | Admin | Doctors | `/admin/doctors` → `/admin/doctors/new`, `/admin/doctors/:id` |
 | Admin | Specialties | `/admin/specialties` |
 
-- **M3 hook:** the detail's "Book" button (patients only) pushes `bookingRoute(doctorId)` = `/patient/doctors/:id/book`, which currently shows `BookingPlaceholderScreen`. M3 replaces that route's builder in `router.dart`. The doctor's tab 0 (`/doctor`) is still the M1 home placeholder, for M3's agenda.
+- **M3 hook (done):** the detail's "Book" button (patients only) pushes `bookingRoute(doctorId)` = `/patient/doctors/:id/book`, which M3 mounts as `BookingScreen`. The doctor's tab 0 (`/doctor`) is now M3's agenda.
 - Specialty names are shown with `specialtyName(context, s)` (current locale). Weekday names come from `intl`, times from `TimeOfDay.format`.
+- When the server answers `time_off_conflict`, the time off dialog lists the blocking appointments (date, patient) under the error; the doctor cancels them from the agenda, then saves again.
 - Time off is chosen as whole days (first day 00:00 to the midnight after the last day) and sent as wall-clock datetimes without offset, so the server applies `APP_TIME_ZONE` whatever the phone's zone. The list parses the response keeping the clinic's wall clock, and shows whole days as a date range (end minus one day).
 - The admin doctors list shows an "Invitation pending" line for doctors who have not accepted yet. After a specialty rename the doctor providers are invalidated so cards show the new name.
 - `test/support/fake_doctors_repository.dart` (`FakeDoctorsRepository`, `fakeDoctor()`) is meant to be reused by M3/M4 tests.

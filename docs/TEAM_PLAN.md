@@ -259,6 +259,7 @@ Python 3.12 · Django 5.2 LTS · djangorestframework · djangorestframework-simp
   } }
   ```
   - `fields` is always present (`{}` when not a field error); nested serializers give nested objects.
+  - Some business errors add an optional top-level `details` object (only when the app needs data to explain the error, e.g. `time_off_conflict` lists the blocking appointments). `BusinessError(..., details={...})`; absent otherwise.
   - **The app translates by `code`.** `message` is only a fallback: the server localizes it from the `Accept-Language` header, which the app always sends.
   - Business errors: `raise BusinessError("slot_taken", _("This slot is already taken."), status_code=409)` (helper in `core/exceptions.py`).
   - Never catch a Django `ValidationError` and re-raise only its messages: that drops the codes. Let it propagate; DRF keeps the codes.
@@ -269,7 +270,7 @@ Python 3.12 · Django 5.2 LTS · djangorestframework · djangorestframework-simp
   | Field (DRF/Django) | `required`, `blank`, `null`, `invalid`, `unique`, `max_length`, `min_length`, `invalid_choice`, `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar`, `min_value`, `max_value`, `does_not_exist`, `incorrect_type` |
   | M1 Auth | `invalid_code`, `cannot_deactivate_self`, `date_in_future` |
   | M2 Doctors | `availability_overlap`, `specialty_in_use` |
-  | M3 Appointments | `slot_taken`, `slot_not_available`, `cancellation_too_late`, `invalid_status_transition` |
+  | M3 Appointments | `slot_taken`, `slot_not_available`, `cancellation_too_late`, `invalid_status_transition`, `booking_limit_reached`, `time_off_conflict` (returned by M2's `POST doctors/me/time-off/`) |
 - **Pagination** on every list: `?page=2`, `page_size` 20 (max 100) → `{ "count", "next", "previous", "results" }`.
 - **Dates/times:** `USE_TZ = True`, `TIME_ZONE = APP_TIME_ZONE` (default `Africa/Tunis`). Store UTC, return ISO 8601 with offset (`2026-11-03T09:00:00+01:00`). Dates `YYYY-MM-DD`. Availability times are wall-clock in `APP_TIME_ZONE`. The app formats dates with `intl` in the current locale.
 - **Docs:** drf-spectacular → Swagger UI at `/api/docs/`, schema at `/api/schema/`. Every view has a serializer (or `@extend_schema`) so it shows correctly.
@@ -324,6 +325,7 @@ THROTTLE_LOGIN=10/min
 THROTTLE_REGISTER=10/hour
 THROTTLE_PASSWORD_RESET=5/hour
 THROTTLE_PASSWORD_RESET_CONFIRM=20/hour
+THROTTLE_APPOINTMENT_WRITE=20/hour
 RESET_MAX_FAILED_ATTEMPTS_PER_DAY=10
 DJANGO_ADMIN_ENABLED=False
 SEED_DEMO_PASSWORD=     # set a real password before running seed_demo
@@ -337,6 +339,7 @@ DEFAULT_FROM_EMAIL=MedApp <no-reply@medapp.local>
 BOOKING_HORIZON_DAYS=30
 BOOKING_MIN_LEAD_MINUTES=60
 CANCELLATION_MIN_HOURS=24
+MAX_UPCOMING_APPOINTMENTS_PER_PATIENT=5
 # notifications (M4)
 NOTIFICATION_POLL_SECONDS=30
 NOTIFICATION_MAX_ATTEMPTS=5
@@ -395,7 +398,7 @@ What M1 merges in **week 0**, usable immediately:
 | User summary serializer | `accounts.serializers.UserSummarySerializer` | `{id, first_name, last_name, email, phone}` to embed a patient/doctor in your responses |
 | Create user | `accounts.services.create_user(*, email, first_name, last_name, role, phone="", preferred_language=None, password=None)` | M2 creates doctors (no password → unusable) |
 | Invite / reset email | `accounts.services.send_password_code(user, purpose="invite" \| "reset")` | M2 sends the doctor invite |
-| Business errors | `core.exceptions.BusinessError(code, message, status_code=400)` | every module |
+| Business errors | `core.exceptions.BusinessError(code, message, status_code=400, details=None)`; `details` (optional dict) comes out as `error.details` | every module |
 | Test fixtures | `backend/conftest.py` | `api_client`, `patient`, `doctor` (with a `DoctorProfile` once M2 merges), `admin_user`, `auth_client(user)` (uses `force_authenticate`, no JWT needed) |
 | Login | `POST /api/v1/auth/login/` works from week 0 | get a real token for Swagger / Flutter |
 
@@ -403,7 +406,7 @@ What M1 merges in **week 0**, usable immediately:
 | Contract | Location |
 |---|---|
 | Authenticated HTTP client | `dioProvider` in `core/network/api_client.dart`: just `ref.watch(dioProvider)`, never create your own `Dio` |
-| Errors | `ApiException { statusCode, code, message, fields }` in `core/network/api_exception.dart`; text via `errorText(context, e)` in `core/l10n/error_text.dart` |
+| Errors | `ApiException { statusCode, code, message, fields, details }` (`details` = optional `error.details`) in `core/network/api_exception.dart`; text via `errorText(context, e)` in `core/l10n/error_text.dart` |
 | Current user | `currentUserProvider` → `User?` with `role` (`UserRole.patient/doctor/admin`) and `preferredLanguage`; `currentUserIdProvider` → `int?` |
 | Current locale | `localeControllerProvider` (`core/l10n/locale_controller.dart`) |
 | Role shells | `app/shells/patient_shell.dart`, `doctor_shell.dart`, `admin_shell.dart`: add your tab/route in `app/router.dart` in your PR |

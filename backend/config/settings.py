@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "core",
     "accounts",
     "doctors",
+    "appointments",
 ]
 
 MIDDLEWARE = [
@@ -124,6 +125,7 @@ REST_FRAMEWORK = {
         "auth_register": env("THROTTLE_REGISTER"),
         "password_reset": env("THROTTLE_PASSWORD_RESET"),
         "password_reset_confirm": env("THROTTLE_PASSWORD_RESET_CONFIRM"),
+        "appointment_write": env("THROTTLE_APPOINTMENT_WRITE", default="20/hour"),
     },
 }
 
@@ -155,6 +157,14 @@ PASSWORD_CODE_MAX_ATTEMPTS = 5
 # Failed code attempts per account over 24 h, across all its codes. At the limit even a
 # correct code is refused and no new reset code is sent until the window passes.
 RESET_MAX_FAILED_ATTEMPTS_PER_DAY = env.int("RESET_MAX_FAILED_ATTEMPTS_PER_DAY")
+
+# Appointments (M3)
+BOOKING_HORIZON_DAYS = env.int("BOOKING_HORIZON_DAYS")
+BOOKING_MIN_LEAD_MINUTES = env.int("BOOKING_MIN_LEAD_MINUTES")
+CANCELLATION_MIN_HOURS = env.int("CANCELLATION_MIN_HOURS")
+# Booking limits per patient: this many upcoming confirmed appointments at most (and one per
+# doctor, none overlapping): `booking_limit_reached`.
+MAX_UPCOMING_APPOINTMENTS_PER_PATIENT = env.int("MAX_UPCOMING_APPOINTMENTS_PER_PATIENT", default=5)
 
 # Used only by `manage.py seed_demo`; empty means "not configured" (the command refuses).
 SEED_DEMO_PASSWORD = env("SEED_DEMO_PASSWORD", default="")

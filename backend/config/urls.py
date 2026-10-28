@@ -9,6 +9,7 @@ urlpatterns = [
     # Each module adds its own include here.
     path("api/v1/", include("accounts.urls")),
     path("api/v1/", include("doctors.urls")),
+    path("api/v1/", include("appointments.urls")),
 ]
 
 if settings.DJANGO_ADMIN_ENABLED:

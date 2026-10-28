@@ -14,11 +14,16 @@ from rest_framework.views import exception_handler
 
 
 class BusinessError(APIException):
-    """A rule of the domain was broken, e.g. BusinessError("slot_taken", _("..."), 409)."""
+    """A rule of the domain was broken, e.g. BusinessError("slot_taken", _("..."), 409).
 
-    def __init__(self, code: str, message: str, status_code: int = 400):
+    `details` (optional, JSON-serializable) is returned as `error.details` for errors that
+    must carry data the app shows, e.g. the appointments blocking a time off.
+    """
+
+    def __init__(self, code: str, message: str, status_code: int = 400, details=None):
         super().__init__(detail=message, code=code)
         self.status_code = status_code
+        self.details = details
 
 
 def _is_leaf(details) -> bool:
@@ -64,5 +69,8 @@ def api_exception_handler(exc, context):
         code, message, fields = "validation_error", _("Invalid input."), _validation_fields(exc)
     else:
         (code, message), fields = _code_and_message(exc), {}
-    response.data = {"error": {"code": code, "message": str(message), "fields": fields}}
+    body = {"code": code, "message": str(message), "fields": fields}
+    if isinstance(exc, BusinessError) and exc.details is not None:
+        body["details"] = exc.details
+    response.data = {"error": body}
     return response

@@ -42,6 +42,13 @@ String? _knownCode(AppLocalizations l10n, String code) {
     // M2 Doctors
     'availability_overlap' => l10n.errorAvailabilityOverlap,
     'specialty_in_use' => l10n.errorSpecialtyInUse,
+    // M3 Appointments
+    'slot_taken' => l10n.errorSlotTaken,
+    'slot_not_available' => l10n.errorSlotNotAvailable,
+    'cancellation_too_late' => l10n.errorCancellationTooLate,
+    'invalid_status_transition' => l10n.errorInvalidStatusTransition,
+    'booking_limit_reached' => l10n.errorBookingLimitReached,
+    'time_off_conflict' => l10n.errorTimeOffConflict,
     _ => null,
   };
 }

@@ -13,6 +13,7 @@ class AsyncValueView<T> extends StatelessWidget {
     this.onRetry,
     this.isEmpty,
     this.emptyText,
+    this.onRefresh,
   });
 
   final AsyncValue<T> value;
@@ -22,6 +23,9 @@ class AsyncValueView<T> extends StatelessWidget {
   /// When it returns true the empty message is shown instead of [data].
   final bool Function(T data)? isEmpty;
   final String? emptyText;
+
+  /// When set, the empty state can be pulled down to reload.
+  final Future<void> Function()? onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +53,21 @@ class AsyncValueView<T> extends StatelessWidget {
           ),
       data: (loaded) {
         if (isEmpty?.call(loaded) ?? false) {
-          return Center(child: Text(emptyText ?? l10n.commonEmpty));
+          final message = Center(child: Text(emptyText ?? l10n.commonEmpty));
+          final refresh = onRefresh;
+          if (refresh == null) return message;
+          return RefreshIndicator(
+            onRefresh: refresh,
+            child: LayoutBuilder(
+              builder:
+                  (context, constraints) => ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(height: constraints.maxHeight, child: message),
+                    ],
+                  ),
+            ),
+          );
         }
         return data(loaded);
       },

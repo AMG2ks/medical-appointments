@@ -1,8 +1,10 @@
 """Business rules of the doctors module (plain functions, no HTTP)."""
 
 import logging
+from collections.abc import Callable
 from datetime import UTC, date, datetime, time, timedelta
 
+from django.contrib.auth.hashers import UNUSABLE_PASSWORD_PREFIX
 from django.db import IntegrityError, transaction
 from django.db.models import ProtectedError
 from django.utils import timezone
@@ -18,6 +20,18 @@ from .models import DoctorProfile, Specialty, TimeOff, WeeklyAvailability
 logger = logging.getLogger(__name__)
 
 # --- doctors ---
+
+
+def visible_doctors(user):
+    """Doctors a user may see: active doctor accounts. Doctors who have not accepted their
+    invite yet (no usable password) are hidden from everyone but admins, so nobody can book
+    an account that cannot log in. Booking and slots apply the same rule."""
+    doctors = DoctorProfile.objects.filter(
+        user__is_active=True, user__role=User.Role.DOCTOR
+    ).select_related("user", "specialty")
+    if getattr(user, "role", None) != User.Role.ADMIN:  # anonymous: schema generation
+        doctors = doctors.exclude(user__password__startswith=UNUSABLE_PASSWORD_PREFIX)
+    return doctors
 
 
 def _send_invite(user: User) -> None:
@@ -107,6 +121,44 @@ def save_availability(
     return instance
 
 
+# --- time off ---
+
+# A guard is called as guard(doctor, start_at, end_at) under the doctor's row lock and returns
+# None (fine) or a JSON-serializable dict explaining why the time off cannot be created. Apps
+# that depend on doctors (appointments) register one in AppConfig.ready(): doctors never
+# imports them.
+TimeOffGuard = Callable[[DoctorProfile, datetime, datetime], "dict | None"]
+_time_off_guards: list[TimeOffGuard] = []
+
+
+def register_time_off_guard(guard: TimeOffGuard) -> None:
+    if guard not in _time_off_guards:
+        _time_off_guards.append(guard)
+
+
+def create_time_off(
+    doctor: DoctorProfile, *, start_at: datetime, end_at: datetime, reason: str = ""
+) -> TimeOff:
+    """Create a time off unless a guard refuses (409 `time_off_conflict`, details attached).
+
+    Runs under the same doctor-row lock as booking, so a booking cannot slip in between the
+    check and the insert."""
+    with transaction.atomic():
+        DoctorProfile.objects.select_for_update().get(pk=doctor.pk)
+        for guard in _time_off_guards:
+            details = guard(doctor, start_at, end_at)
+            if details:
+                raise BusinessError(
+                    "time_off_conflict",
+                    _("Appointments are already booked during this period."),
+                    status_code=409,
+                    details=details,
+                )
+        return TimeOff.objects.create(
+            doctor=doctor, start_at=start_at, end_at=end_at, reason=reason
+        )
+
+
 # --- working intervals (contract for M3) ---
 
 
@@ -163,7 +215,10 @@ def working_intervals(doctor: DoctorProfile, day: date) -> list[tuple[datetime, 
 
 __all__ = [
     "create_doctor",
+    "create_time_off",
     "delete_specialty",
+    "register_time_off_guard",
+    "visible_doctors",
     "save_availability",
     "working_intervals",
 ]

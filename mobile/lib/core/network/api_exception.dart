@@ -18,12 +18,17 @@ class ApiException implements Exception {
     required this.code,
     this.message = '',
     this.fields = const {},
+    this.details = const {},
   });
 
   final int? statusCode;
   final String code;
   final String message;
   final Map<String, List<ApiFieldError>> fields;
+
+  /// Extra data some business errors carry (`error.details`), e.g. the appointments that
+  /// block a time off. Empty when the server sent none.
+  final Map<String, dynamic> details;
 
   static const networkError = 'network_error';
   static const serverError = 'server_error';
@@ -63,6 +68,10 @@ class ApiException implements Exception {
       code: error['code'] as String,
       message: (error['message'] as String?) ?? '',
       fields: fields,
+      details:
+          error['details'] is Map
+              ? (error['details'] as Map).cast<String, dynamic>()
+              : const {},
     );
   }
 

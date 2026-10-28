@@ -21,6 +21,10 @@ class PatientShell extends StatelessWidget {
           label: l10n.navDoctors,
         ),
         NavigationDestination(
+          icon: const Icon(Icons.event_outlined),
+          label: l10n.navAppointments,
+        ),
+        NavigationDestination(
           icon: const Icon(Icons.person_outline),
           label: l10n.navProfile,
         ),

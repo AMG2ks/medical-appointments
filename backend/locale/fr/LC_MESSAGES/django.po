@@ -85,3 +85,40 @@ msgstr "Cette plage chevauche une disponibilité existante."
 
 msgid "The end must be after the start."
 msgstr "La fin doit être après le début."
+
+# --- appointments: API messages ---
+msgid "This slot is already taken."
+msgstr "Ce créneau est déjà pris."
+
+msgid "This doctor does not exist."
+msgstr "Ce médecin n'existe pas."
+
+msgid "This time is not available for booking."
+msgstr "Cet horaire n'est pas disponible à la réservation."
+
+msgid "This appointment cannot change to that status."
+msgstr "Ce rendez-vous ne peut pas passer à ce statut."
+
+msgid "It is too late to cancel this appointment."
+msgstr "Il est trop tard pour annuler ce rendez-vous."
+
+msgid "This field may not be blank."
+msgstr "Ce champ ne peut pas être vide."
+
+msgid "Appointments are already booked during this period."
+msgstr "Des rendez-vous sont déjà réservés sur cette période."
+
+msgid "You already have an appointment at that time."
+msgstr "Vous avez déjà un rendez-vous à cet horaire."
+
+msgid "You already have an upcoming appointment with this doctor."
+msgstr "Vous avez déjà un rendez-vous à venir avec ce médecin."
+
+msgid "You have reached the maximum number of upcoming appointments."
+msgstr "Vous avez atteint le nombre maximal de rendez-vous à venir."
+
+msgid "Account deactivated by an administrator."
+msgstr "Compte désactivé par un administrateur."
+
+msgid "Enter a valid date."
+msgstr "Saisissez une date valide."
