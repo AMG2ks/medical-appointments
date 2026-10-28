@@ -40,6 +40,10 @@ dependencies:
   flutter_secure_storage: ^10.3.4
   shared_preferences: ^2.5.3
   intl: ^0.19.0
+  # Kept on the 17.x line: it is what resolved for Flutter 3.29.2 and sits in the offline pub
+  # cache. Newer majors change the scheduling API; upgrade on purpose, not by accident.
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
   flutter_localizations:
     sdk: flutter
 

@@ -1,3 +1,6 @@
+import re
+import unicodedata
+
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils import timezone
@@ -17,6 +20,24 @@ from rest_framework_simplejwt.utils import get_md5_hash_password
 from . import services
 from .models import PatientProfile, User, phone_validator
 
+URL_LIKE = re.compile(r"(https?://|www\.)", re.IGNORECASE)
+
+
+def clean_person_name(value: str) -> str:
+    """Names end up in emails sent to other people: refuse control / format characters
+    (line breaks, bidi overrides, zero-width...) and link-like text, collapse whitespace."""
+    if any(unicodedata.category(ch) in ("Cc", "Cf") for ch in value) or URL_LIKE.search(value):
+        raise serializers.ValidationError(_("Enter a valid name."), code="invalid")
+    return " ".join(value.split())
+
+
+class CleanNamesMixin:
+    def validate_first_name(self, value):
+        return clean_person_name(value)
+
+    def validate_last_name(self, value):
+        return clean_person_name(value)
+
 
 def _not_in_future(value):
     if value and value > timezone.localdate():
@@ -35,7 +56,7 @@ class PatientProfileSerializer(serializers.ModelSerializer):
         return _not_in_future(value)
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(CleanNamesMixin, serializers.ModelSerializer):
     """`UserOut` of the API. Also used by PATCH auth/me/ (only the writable fields count)."""
 
     patient_profile = PatientProfileSerializer(required=False)  # null for doctors and admins
@@ -88,7 +109,7 @@ class UserSummarySerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class RegisterSerializer(serializers.Serializer):
+class RegisterSerializer(CleanNamesMixin, serializers.Serializer):
     email = serializers.EmailField(max_length=254)
     password = serializers.CharField(write_only=True, trim_whitespace=False)
     first_name = serializers.CharField(max_length=150)

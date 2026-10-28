@@ -10,6 +10,8 @@ urlpatterns = [
     path("api/v1/", include("accounts.urls")),
     path("api/v1/", include("doctors.urls")),
     path("api/v1/", include("appointments.urls")),
+    path("api/v1/", include("notifications.urls")),
+    path("api/v1/", include("dashboard.urls")),
 ]
 
 if settings.DJANGO_ADMIN_ENABLED:

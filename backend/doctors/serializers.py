@@ -2,6 +2,8 @@ from django.utils.translation import gettext as _
 from rest_framework import serializers
 
 from accounts.models import User, phone_validator
+from accounts.serializers import CleanNamesMixin
+from core.fields import SafeDateTimeField
 
 from .models import (
     BIO_MAX_LENGTH,
@@ -75,7 +77,7 @@ class DoctorMeSerializer(DoctorSerializer):
         read_only_fields = ["id", "first_name", "last_name", "specialty", "email", "phone"]
 
 
-class CreateDoctorSerializer(serializers.Serializer):
+class CreateDoctorSerializer(CleanNamesMixin, serializers.Serializer):
     email = serializers.EmailField(max_length=254)
     first_name = serializers.CharField(max_length=150)
     last_name = serializers.CharField(max_length=150)
@@ -117,6 +119,9 @@ class WeeklyAvailabilitySerializer(serializers.ModelSerializer):
 
 
 class TimeOffSerializer(serializers.ModelSerializer):
+    start_at = SafeDateTimeField()
+    end_at = SafeDateTimeField()
+
     class Meta:
         model = TimeOff
         fields = ["id", "start_at", "end_at", "reason"]

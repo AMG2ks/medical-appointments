@@ -252,5 +252,123 @@
     }
   },
   "errorBookingLimitReached": "You cannot book this appointment: you reached the limit of upcoming appointments, already have one with this doctor, or have another one at that time.",
-  "apptStatusUnknown": "Unknown"
+  "apptStatusUnknown": "Unknown",
+  "navNotifications": "Notifications",
+  "navDashboard": "Dashboard",
+  "notifTitle": "Notifications",
+  "notifMarkAllRead": "Mark all as read",
+  "notifEmpty": "No notifications yet.",
+  "notifUnreadBadge": "Unread notifications",
+  "notifConfirmedTitle": "Appointment confirmed",
+  "notifConfirmedBody": "With Dr {doctor} on {when}.",
+  "@notifConfirmedBody": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifBookedTitle": "New appointment",
+  "notifBookedBody": "{patient} booked an appointment on {when}.",
+  "@notifBookedBody": {
+    "placeholders": {
+      "patient": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifCancelledTitle": "Appointment cancelled",
+  "notifCancelledByPatientBody": "{patient} cancelled the appointment planned for {when}.",
+  "@notifCancelledByPatientBody": {
+    "placeholders": {
+      "patient": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifCancelledByDoctorBody": "Dr {doctor} cancelled your appointment planned for {when}.",
+  "@notifCancelledByDoctorBody": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifCancelledByClinicPatientBody": "The clinic cancelled your appointment with Dr {doctor} on {when}.",
+  "@notifCancelledByClinicPatientBody": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifCancelledByClinicDoctorBody": "The clinic cancelled your appointment with {patient} on {when}.",
+  "@notifCancelledByClinicDoctorBody": {
+    "placeholders": {
+      "patient": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifReminderTitle": "Appointment reminder",
+  "notifReminderBody": "With Dr {doctor} on {when}.",
+  "@notifReminderBody": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "notifUnknownTitle": "Notification",
+  "notifUnknownBody": "Update the app to read this notification.",
+  "notifNewSnack": "{count, plural, one{You have a new notification} other{You have {count} new notifications}}",
+  "@notifNewSnack": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifViewAction": "View",
+  "notifReminderChannel": "Appointment reminders",
+  "dashTitle": "Dashboard",
+  "dashPatients": "Patients",
+  "dashDoctors": "Doctors",
+  "dashActiveOfTotal": "{active} active of {total}",
+  "@dashActiveOfTotal": {
+    "placeholders": {
+      "active": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "dashAppointments": "Appointments",
+  "dashToday": "Today",
+  "dashThisWeek": "This week",
+  "dashTotal": "Total",
+  "dashByStatus": "By status"
 }

@@ -12,6 +12,20 @@ class Env {
     defaultValue: 30,
   );
 
+  /// Foreground polling period of the unread-notifications badge (M4). Same name as the
+  /// backend's worker period, but it is the app's own setting.
+  static const notificationsPollSeconds = int.fromEnvironment(
+    'NOTIFICATIONS_POLL_SECONDS',
+    defaultValue: 30,
+  );
+
+  /// How long before an appointment the on-device reminder fires. Keep it equal to the
+  /// backend's `REMINDER_MINUTES_BEFORE` (the reminder email uses that one).
+  static const reminderMinutesBefore = int.fromEnvironment(
+    'REMINDER_MINUTES_BEFORE',
+    defaultValue: 1440,
+  );
+
   /// Call first in `main()`: stop with a clear message instead of failing on every request.
   static void validate() {
     if (apiBaseUrl.isEmpty) {

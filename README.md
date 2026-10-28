@@ -54,7 +54,7 @@ python manage.py runserver --insecure 0.0.0.0:8000  # 0.0.0.0 so a phone can rea
 - Django admin (`/admin/`) is **off by default**: set `DJANGO_ADMIN_ENABLED=True` in `backend/.env` when you need it, and turn it back off afterwards.
 - Create an admin: `python manage.py createsuperuser`
 - Demo accounts: `admin@medapp.local`, `dr.karim@medapp.local`, `dr.sarah@medapp.local`, `amira@medapp.local`, `john@medapp.local`
-- Notification worker (added by the Notifications module, second terminal): `python manage.py run_notification_worker`
+- Notification worker (second terminal; creates reminders and sends the emails to Mailpit): `python manage.py run_notification_worker`. LAN demo runbook: [`docs/DEMO.md`](docs/DEMO.md)
 - Translations (needs GNU gettext): `python manage.py makemessages -l fr`, then `python manage.py compilemessages`; commit the `.po` **and** `.mo`.
 - Tests: `pytest` (needs the Postgres container running).
 

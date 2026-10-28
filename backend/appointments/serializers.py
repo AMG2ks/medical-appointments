@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from accounts.models import User
 from accounts.serializers import UserSummarySerializer
+from core.fields import SafeDateTimeField
 from doctors.serializers import SpecialtySerializer
 
 from .models import REASON_MAX_LENGTH, Appointment
@@ -44,16 +45,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = fields
-
-
-class SafeDateTimeField(serializers.DateTimeField):
-    """DRF raises OverflowError (a 500) on naive year-1 / year-9999 values: make it `invalid`."""
-
-    def enforce_timezone(self, value):
-        try:
-            return super().enforce_timezone(value)
-        except OverflowError:
-            self.fail("invalid", format="ISO 8601")
 
 
 class BookAppointmentSerializer(serializers.Serializer):

@@ -9,6 +9,7 @@ import '../../../../core/widgets/async_value_view.dart';
 import 'package:medical_appointments/l10n/gen/app_localizations.dart';
 import '../../../doctors/presentation/doctors_providers.dart';
 import '../../../doctors/presentation/screens/doctor_texts.dart';
+import '../../../notifications/local_reminders.dart';
 import '../../data/models/appointment.dart';
 import '../appointments_providers.dart';
 import '../appointments_routes.dart';
@@ -64,6 +65,10 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             slot: slot,
             reason: _reason.text.trim(),
           );
+      // In context, at the moment of need: the reminders only make sense once the user has
+      // booked. The system shows its dialog only when it can; a refusal just means no
+      // on-device reminders (the email and the in-app list still work).
+      await ref.read(localRemindersProvider).requestPermission();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).apptBooked)),

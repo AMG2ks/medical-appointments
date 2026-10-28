@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/data/models/user.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../dashboard/presentation/dashboard_providers.dart';
 import '../data/users_admin_api.dart';
 
 class UsersListState {
@@ -77,6 +78,8 @@ class UsersAdminController extends AsyncNotifier<UsersListState> {
     final updated = await ref
         .read(usersAdminApiProvider)
         .setActive(user.id, isActive: isActive);
+    // The dashboard (kept alive in its tab) shows active counts.
+    ref.invalidate(dashboardStatsProvider);
     final current = state.requireValue;
     state = AsyncData(
       UsersListState(

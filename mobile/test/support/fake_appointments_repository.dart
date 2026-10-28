@@ -195,6 +195,7 @@ class FakeAppointmentsRepository implements AppointmentsRepository {
   @override
   Future<List<Appointment>> fetchUpcoming() async {
     calls.add('fetchUpcoming');
+    if (listError != null) throw listError!;
     return [...appointments.where(_isUpcoming)]
       ..sort((a, b) => a.startAt.compareTo(b.startAt));
   }

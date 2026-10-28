@@ -485,6 +485,13 @@ class TestTimeOff:
         response = auth_client(doctor).post(TIME_OFF, {}, format="json")
         assert response.data["error"]["fields"]["start_at"][0]["code"] == "required"
 
+    def test_year_one_naive_datetime_is_a_400_not_a_500(self, auth_client, doctor):
+        # Regression: DRF raised OverflowError converting this to an aware datetime.
+        body = {"start_at": "0001-01-01T00:00:00", "end_at": "2030-01-01T00:00:00Z"}
+        response = auth_client(doctor).post(TIME_OFF, body, format="json")
+        assert response.status_code == 400
+        assert response.data["error"]["fields"]["start_at"][0]["code"] == "invalid"
+
     def test_only_own_time_off(self, auth_client, doctor, specialty):
         other = make_doctor("o@example.com", specialty)
         now = timezone.now()

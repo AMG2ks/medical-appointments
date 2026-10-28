@@ -122,3 +122,59 @@ msgstr "Compte désactivé par un administrateur."
 
 msgid "Enter a valid date."
 msgstr "Saisissez une date valide."
+
+# --- notifications: emails ---
+msgid "Appointment confirmed"
+msgstr "Rendez-vous confirmé"
+
+msgid "New appointment booked"
+msgstr "Nouveau rendez-vous réservé"
+
+msgid "Appointment cancelled"
+msgstr "Rendez-vous annulé"
+
+msgid "Appointment reminder"
+msgstr "Rappel de rendez-vous"
+
+msgid "Hello Dr %(name)s,"
+msgstr "Bonjour Dr %(name)s,"
+
+msgid "Your appointment with Dr %(doctor_name)s is confirmed for %(when)s."
+msgstr "Votre rendez-vous avec le Dr %(doctor_name)s est confirmé pour le %(when)s."
+
+msgid "%(patient_name)s booked an appointment with you for %(when)s."
+msgstr "%(patient_name)s a réservé un rendez-vous avec vous pour le %(when)s."
+
+msgid "%(patient_name)s cancelled the appointment planned for %(when)s."
+msgstr "%(patient_name)s a annulé le rendez-vous prévu le %(when)s."
+
+msgid "The clinic cancelled your appointment with %(patient_name)s planned for %(when)s."
+msgstr "Le cabinet a annulé votre rendez-vous avec %(patient_name)s prévu le %(when)s."
+
+msgid "Dr %(doctor_name)s cancelled your appointment planned for %(when)s."
+msgstr "Le Dr %(doctor_name)s a annulé votre rendez-vous prévu le %(when)s."
+
+msgid "The clinic cancelled your appointment with Dr %(doctor_name)s planned for %(when)s."
+msgstr "Le cabinet a annulé votre rendez-vous avec le Dr %(doctor_name)s prévu le %(when)s."
+
+msgid "Reason given by %(reason_by)s: \"%(reason)s\""
+msgstr "Motif indiqué par %(reason_by)s : « %(reason)s »"
+
+msgid "the patient"
+msgstr "le patient"
+
+msgid "the doctor"
+msgstr "le médecin"
+
+msgid "the clinic"
+msgstr "le cabinet"
+
+msgid "Reminder: you have an appointment with Dr %(doctor_name)s on %(when)s."
+msgstr "Rappel : vous avez un rendez-vous avec le Dr %(doctor_name)s le %(when)s."
+
+# --- accounts / appointments: later additions ---
+msgid "The doctor's account was deactivated by an administrator."
+msgstr "Le compte du médecin a été désactivé par un administrateur."
+
+msgid "Enter a valid name."
+msgstr "Saisissez un nom valide."

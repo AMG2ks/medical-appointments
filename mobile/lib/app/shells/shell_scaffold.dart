@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/notifications/presentation/widgets/notifications_host.dart';
+
 /// Bottom navigation container shared by the three role shells.
 class ShellScaffold extends StatelessWidget {
   const ShellScaffold({
@@ -14,16 +16,19 @@ class ShellScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: shell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected:
-            (index) => shell.goBranch(
-              index,
-              initialLocation: index == shell.currentIndex,
-            ),
-        destinations: destinations,
+    // The host polls the unread count and syncs the reminders while a user is in the app.
+    return NotificationsHost(
+      child: Scaffold(
+        body: shell,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected:
+              (index) => shell.goBranch(
+                index,
+                initialLocation: index == shell.currentIndex,
+              ),
+          destinations: destinations,
+        ),
       ),
     );
   }

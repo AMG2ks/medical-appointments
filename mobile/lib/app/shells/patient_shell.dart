@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/notifications/presentation/widgets/notifications_nav_icon.dart';
 import 'package:medical_appointments/l10n/gen/app_localizations.dart';
 import 'shell_scaffold.dart';
 
@@ -23,6 +24,10 @@ class PatientShell extends StatelessWidget {
         NavigationDestination(
           icon: const Icon(Icons.event_outlined),
           label: l10n.navAppointments,
+        ),
+        NavigationDestination(
+          icon: const NotificationsNavIcon(),
+          label: l10n.navNotifications,
         ),
         NavigationDestination(
           icon: const Icon(Icons.person_outline),

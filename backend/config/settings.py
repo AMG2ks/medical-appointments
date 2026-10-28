@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "accounts",
     "doctors",
     "appointments",
+    "notifications",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -126,6 +128,7 @@ REST_FRAMEWORK = {
         "password_reset": env("THROTTLE_PASSWORD_RESET"),
         "password_reset_confirm": env("THROTTLE_PASSWORD_RESET_CONFIRM"),
         "appointment_write": env("THROTTLE_APPOINTMENT_WRITE", default="20/hour"),
+        "appointment_cancel": env("THROTTLE_APPOINTMENT_CANCEL", default="10/day"),
     },
 }
 
@@ -166,6 +169,15 @@ CANCELLATION_MIN_HOURS = env.int("CANCELLATION_MIN_HOURS")
 # doctor, none overlapping): `booking_limit_reached`.
 MAX_UPCOMING_APPOINTMENTS_PER_PATIENT = env.int("MAX_UPCOMING_APPOINTMENTS_PER_PATIENT", default=5)
 
+# Notifications (M4): the worker (`manage.py run_notification_worker`) loops every
+# NOTIFICATION_POLL_SECONDS; REMINDER_MINUTES_BEFORE is how long before the start a reminder
+# row is created (the mobile app reads its own copy of the same value from its env file).
+NOTIFICATION_POLL_SECONDS = env.int("NOTIFICATION_POLL_SECONDS", default=30)
+NOTIFICATION_MAX_ATTEMPTS = env.int("NOTIFICATION_MAX_ATTEMPTS", default=5)
+REMINDER_MINUTES_BEFORE = env.int("REMINDER_MINUTES_BEFORE", default=1440)
+# The worker deletes read notifications (email done) older than this many days.
+NOTIFICATION_RETENTION_DAYS = env.int("NOTIFICATION_RETENTION_DAYS", default=90)
+
 # Used only by `manage.py seed_demo`; empty means "not configured" (the command refuses).
 SEED_DEMO_PASSWORD = env("SEED_DEMO_PASSWORD", default="")
 
@@ -175,5 +187,8 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {"plain": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}},
     "handlers": {"console": {"class": "logging.StreamHandler", "formatter": "plain"}},
-    "loggers": {"accounts.audit": {"handlers": ["console"], "level": "INFO"}},
+    "loggers": {
+        "accounts.audit": {"handlers": ["console"], "level": "INFO"},
+        "notifications": {"handlers": ["console"], "level": "INFO"},
+    },
 }

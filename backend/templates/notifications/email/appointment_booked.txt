@@ -1,0 +1,4 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate trimmed with name=user.last_name %}Hello Dr {{ name }},{% endblocktranslate %}
+
+{% blocktranslate trimmed %}{{ patient_name }} booked an appointment with you for {{ when }}.{% endblocktranslate %}
+{% endautoescape %}

@@ -173,7 +173,7 @@ Responses:
 - `400 validation_error` with field codes:
   - `email`: `required`, `invalid`, `unique`
   - `password`: `required`, `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar`
-  - `first_name`/`last_name`: `required`, `blank`
+  - `first_name`/`last_name`: `required`, `blank`, `invalid` (control / format characters such as line breaks and bidi overrides, or link-like text `http(s)://`, `www.`; whitespace is collapsed). Same rule on `PATCH auth/me/` and on admin doctor creation (names are copied into emails sent to other people)
   - `phone`: `invalid`
   - `date_of_birth`: `invalid`, `date_in_future`
   - `preferred_language`: `invalid_choice`
@@ -316,7 +316,7 @@ lib/app/shells/                          # patient_shell, doctor_shell, admin_sh
 Methods: `login`, `register` (both save tokens, then set the user), `logout`, `sessionExpired` (called by the interceptor), `updateProfile`.
 
 `logout()`:
-1. M4 hooks: stop notification polling and `LocalReminders.cancelAll()` (the next person using this phone must not get this user's reminders).
+1. M4 hooks: `LocalReminders.cancelAll()` (the next person using this phone must not get this user's reminders; wired, see NOTIFICATIONS.md §6). Notification polling needs no explicit call: the poller lives in `NotificationsHost`, which exists only inside a logged-in shell, so it is disposed when the router leaves the shell on logout.
 2. `POST auth/logout/` with the refresh token (best effort).
 3. Clear token storage.
 4. Set state to `null`.
@@ -338,7 +338,7 @@ User-scoped providers watch `currentUserIdProvider` (the user's id), so they res
 
 ### 6.4 Routing (`app/router.dart`)
 - Public routes: `/splash`, `/login`, `/register`, `/forgot-password`, `/reset-password`.
-- Role areas: `/patient/...`, `/doctor/...`, `/admin/...`. Each is a `StatefulShellRoute` with a bottom nav; the `profile` tab in each reuses `ProfileScreen`.
+- Role areas: `/patient/...`, `/doctor/...`, `/admin/...`. Each is a `StatefulShellRoute` with a bottom nav; the `profile` tab in each reuses `ProfileScreen`. M4 added a `notifications` tab (patient, doctor) and made the admin home `/admin` the dashboard (the users list moved to `/admin/users`); `ShellScaffold` wraps every shell in `NotificationsHost`.
 - The router refreshes when the auth state changes (`refreshListenable` fed by `ref.listen(authControllerProvider, ...)`).
 
 `String? authRedirect(AsyncValue<User?> auth, String location)` is a pure function (easy to unit test):

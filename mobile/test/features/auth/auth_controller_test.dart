@@ -7,12 +7,13 @@ import 'package:medical_appointments/features/auth/presentation/auth_controller.
 import 'package:medical_appointments/features/notifications/local_reminders.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../support/fake_local_reminders.dart';
 import '../../support/fakes.dart';
 import '../../support/test_app.dart';
 
 class MockAuthApi extends Mock implements AuthApi {}
 
-class ThrowingReminders implements LocalReminders {
+class ThrowingReminders extends FakeLocalReminders {
   @override
   Future<void> cancelAll() async => throw StateError('hook failed');
 }
@@ -106,6 +107,54 @@ void main() {
     expect(c.read(currentUserProvider), isNull);
     verify(() => api.logout('r1')).called(1);
   });
+
+  test('logout cancels the on-device reminders', () async {
+    tokens
+      ..access = 'a1'
+      ..refresh = 'r1';
+    when(() => api.me()).thenAnswer((_) async => fakeUser());
+    when(() => api.logout(any())).thenAnswer((_) async {});
+    final reminders = FakeLocalReminders();
+    final c = makeContainer([
+      ...await baseOverrides(),
+      authApiProvider.overrideWithValue(api),
+      tokenStorageProvider.overrideWithValue(tokens),
+      localRemindersProvider.overrideWithValue(reminders),
+    ]);
+    await c.read(authControllerProvider.future);
+
+    await c.read(authControllerProvider.notifier).logout();
+
+    expect(reminders.cancelAllCalls, 1);
+    expect(c.read(currentUserProvider), isNull);
+  });
+
+  test(
+    'an expired session and discarding the session cancel the reminders',
+    () async {
+      tokens
+        ..access = 'a1'
+        ..refresh = 'r1';
+      when(() => api.me()).thenAnswer((_) async => fakeUser());
+      final reminders = FakeLocalReminders();
+      final c = makeContainer([
+        ...await baseOverrides(),
+        authApiProvider.overrideWithValue(api),
+        tokenStorageProvider.overrideWithValue(tokens),
+        localRemindersProvider.overrideWithValue(reminders),
+      ]);
+      await c.read(authControllerProvider.future);
+
+      c.read(authControllerProvider.notifier).sessionExpired();
+      await Future<void>.delayed(Duration.zero);
+      expect(c.read(currentUserProvider), isNull);
+      expect(reminders.cancelAllCalls, 1);
+
+      await c.read(authControllerProvider.notifier).discardSession();
+      await Future<void>.delayed(Duration.zero);
+      expect(reminders.cancelAllCalls, 2);
+    },
+  );
 
   test(
     'logout completes even if a hook throws, and a double tap is ignored',

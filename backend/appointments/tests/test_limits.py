@@ -14,6 +14,7 @@ from appointments import services
 from appointments.admin import AppointmentAdmin
 from appointments.models import Appointment
 from appointments.signals import appointment_event
+from appointments.throttles import PatientCancelThrottle
 from core.exceptions import BusinessError
 from doctors.models import DoctorProfile, WeeklyAvailability
 
@@ -148,6 +149,26 @@ def test_writes_are_throttled_reads_are_not(auth_client, patient, profile, monke
     assert client.post(f"{APPOINTMENTS}1/cancel/").status_code == 429
 
 
+@pytest.mark.django_db
+def test_patient_cancellations_have_their_own_tighter_cap(
+    auth_client, patient, doctor, profile, make_appointment, monkeypatch
+):
+    monkeypatch.setattr(PatientCancelThrottle, "THROTTLE_RATES", {"appointment_cancel": "2/day"})
+    first = make_appointment(at(DAY, 10))
+    second = make_appointment(at(DAY, 11))
+    third = make_appointment(at(DAY, 12))
+    client = auth_client(patient)
+    assert client.post(f"{APPOINTMENTS}{first.pk}/cancel/").status_code == 200
+    assert client.post(f"{APPOINTMENTS}{second.pk}/cancel/").status_code == 200
+    assert client.post(f"{APPOINTMENTS}{third.pk}/cancel/").status_code == 429
+    # The doctor is only under the general write scope.
+    for _ in range(3):
+        response = auth_client(doctor).post(
+            f"{APPOINTMENTS}{third.pk}/cancel/", {"reason": "x"}, format="json"
+        )
+        assert response.status_code != 429
+
+
 def test_admin_is_read_only(rf, admin_user):
     model_admin = AppointmentAdmin(Appointment, django_admin.site)
     request = rf.get("/")
@@ -210,14 +231,49 @@ class TestDeactivation:
         )
         assert "2026-11-05T10:00:00+01:00" in [s["start_at"] for s in response.data["slots"]]
 
-    def test_reactivating_or_deactivating_a_doctor_cancels_nothing(
+    def test_deactivating_a_doctor_cancels_their_future_appointments(
+        self, admin_user, doctor, patient, other_patient, profile, make_appointment
+    ):
+        future = make_appointment(at(DAY, 10))
+        other = make_appointment(at(DAY, 11), patient_=other_patient)
+        started = make_appointment(NOW - timedelta(minutes=5))
+        events = []
+
+        def receiver(sender, appointment, event, **kwargs):
+            events.append((appointment.pk, event, kwargs.get("automatic")))
+
+        appointment_event.connect(receiver, weak=False)
+        try:
+            accounts_services.set_user_active(doctor, False, by=admin_user)
+        finally:
+            appointment_event.disconnect(receiver)
+        for appointment in (future, other):
+            appointment.refresh_from_db()
+            assert appointment.status == "cancelled"
+            assert appointment.cancelled_by_id == admin_user.pk
+            assert appointment.cancellation_reason
+        started.refresh_from_db()
+        assert started.status == "confirmed"  # left for the doctor to close
+        assert sorted(events) == sorted(
+            [(future.pk, "cancelled", True), (other.pk, "cancelled", True)]
+        )
+
+    def test_reactivating_a_user_or_deactivating_an_admin_cancels_nothing(
         self, admin_user, doctor, patient, profile, make_appointment
     ):
         appointment = make_appointment(at(DAY, 10))
-        accounts_services.set_user_active(doctor, False, by=admin_user)
         accounts_services.set_user_active(patient, True, by=admin_user)
+        other_admin = User.objects.create_superuser("a2@example.com", "x")
+        accounts_services.set_user_active(other_admin, False, by=admin_user)
         appointment.refresh_from_db()
         assert appointment.status == "confirmed"
+
+    def test_a_doctor_cannot_be_booked_after_deactivation(
+        self, auth_client, admin_user, doctor, patient, profile
+    ):
+        accounts_services.set_user_active(doctor, False, by=admin_user)
+        response = book(auth_client(patient), profile, at(DAY, 10))
+        assert response.status_code == 400
 
     def test_a_failing_receiver_rolls_the_deactivation_back(
         self, admin_user, patient, profile, make_appointment

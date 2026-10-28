@@ -411,7 +411,7 @@ What M1 merges in **week 0**, usable immediately:
 | Current locale | `localeControllerProvider` (`core/l10n/locale_controller.dart`) |
 | Role shells | `app/shells/patient_shell.dart`, `doctor_shell.dart`, `admin_shell.dart`: add your tab/route in `app/router.dart` in your PR |
 | Shared widgets | `core/widgets/async_value_view.dart`, `core/utils/date_format.dart` (locale-aware) |
-| Logout hook | `authController.logout()` calls `LocalReminders.cancelAll()` and stops notification polling (M4 provides them; no-op stubs until then) |
+| Logout hook | `authController.logout()` calls `LocalReminders.cancelAll()` (`features/notifications/local_reminders.dart`, real since M4); notification polling lives in `NotificationsHost`, which only exists inside a logged-in shell, so it stops on logout |
 
 **Working in parallel with stubs**
 - Week 0: each owner writes `docs/modules/<MODULE>.md` (models, endpoints, example JSON, error codes) and the consumers review it. Contracts first, code second.

@@ -7,6 +7,7 @@ import '../../../../core/l10n/error_text.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/widgets/async_value_view.dart';
 import 'package:medical_appointments/l10n/gen/app_localizations.dart';
+import '../../../dashboard/presentation/dashboard_providers.dart';
 import '../../../auth/presentation/screens/form_validators.dart';
 import '../../data/doctors_repository.dart';
 import '../doctors_providers.dart';
@@ -73,6 +74,7 @@ class _CreateDoctorScreenState extends ConsumerState<CreateDoctorScreen> {
             bio: _bio.text.trim(),
           );
       ref.invalidate(doctorsListProvider);
+      ref.invalidate(dashboardStatsProvider); // the dashboard counts doctors
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context).doctorsCreated)),

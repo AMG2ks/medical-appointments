@@ -8,6 +8,7 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import generics, status
 from rest_framework.exceptions import ErrorDetail, NotFound, ValidationError
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from accounts.models import User
@@ -22,6 +23,7 @@ from .serializers import (
     SlotQuerySerializer,
     SlotsResponseSerializer,
 )
+from .throttles import PatientCancelThrottle
 
 TAG = ["appointments"]
 
@@ -167,6 +169,7 @@ class CancelView(_ActionView):
     start (a reason is required from them)."""
 
     throttle_scope = "appointment_write"
+    throttle_classes = [ScopedRateThrottle, PatientCancelThrottle]
 
     def act(self, appointment):
         body = CancelAppointmentSerializer(data=self.request.data)

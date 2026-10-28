@@ -39,20 +39,23 @@ class AuthController extends AsyncNotifier<User?> {
 
   bool _loggingOut = false;
 
+  /// Hook of the notifications module: reminders of this user must not outlive the session
+  /// (the next person using the phone must not get them). Never throws: a failing hook must
+  /// never keep the user logged in.
+  Future<void> _cancelReminders() async {
+    try {
+      await ref.read(localRemindersProvider).cancelAll();
+    } catch (_) {}
+  }
+
   /// Local logout first (the user is out immediately, even offline), server revoke after.
   Future<void> logout() async {
     if (_loggingOut) return; // double tap
     _loggingOut = true;
     try {
-      // Hooks of other modules: reminders of this user must not outlive the session.
-      // (Notification polling stops by itself: it watches currentUserProvider.)
-      try {
-        await ref.read(localRemindersProvider).cancelAll();
-      } catch (_) {
-        // A failing hook must never keep the user logged in.
-      }
       final refresh = await _repo.endSession();
       state = const AsyncData(null);
+      await _cancelReminders();
       if (refresh != null) unawaited(_repo.revokeOnServer(refresh));
     } finally {
       _loggingOut = false;
@@ -63,10 +66,14 @@ class AuthController extends AsyncNotifier<User?> {
   Future<void> discardSession() async {
     await _repo.clearSession();
     state = const AsyncData(null);
+    unawaited(_cancelReminders());
   }
 
   /// Called by the interceptor when the refresh token is dead (tokens already cleared).
-  void sessionExpired() => state = const AsyncData(null);
+  void sessionExpired() {
+    state = const AsyncData(null);
+    unawaited(_cancelReminders());
+  }
 
   Future<void> updateProfile(Map<String, dynamic> patch) async {
     state = AsyncData(await _repo.updateProfile(patch));

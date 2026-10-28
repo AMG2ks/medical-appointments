@@ -8,6 +8,7 @@ from datetime import UTC, date, datetime, timedelta
 
 from django.conf import settings
 from django.db import IntegrityError, transaction
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from rest_framework.exceptions import ErrorDetail, PermissionDenied, ValidationError
@@ -285,27 +286,41 @@ def time_off_conflicts(doctor: DoctorProfile, start_at: datetime, end_at: dateti
 
 
 def cancel_future_appointments_of(user: User, *, by: User, **kwargs) -> None:
-    """A deactivated patient keeps no future appointment: they are cancelled by the acting
-    admin (slots freed, `appointment_event("cancelled")` for each), inside the caller's
-    transaction. Appointments already started are left for the doctor to close."""
-    if user.role != User.Role.PATIENT:
+    """A deactivated patient or doctor keeps no future appointment: they are cancelled by the
+    acting admin (slots freed, `appointment_event("cancelled", automatic=True)` for each),
+    inside the caller's transaction. Appointments already started are left for the doctor to
+    close. Admins: nothing to cancel."""
+    if user.role == User.Role.PATIENT:
+        who = Q(patient=user)
+        reason = _("Account deactivated by an administrator.")
+    elif user.role == User.Role.DOCTOR:
+        who = Q(doctor_id=user.pk)
+        reason = _("The doctor's account was deactivated by an administrator.")
+    else:
         return
     now = _now()
     with transaction.atomic():
         User.objects.select_for_update().get(pk=user.pk)
+        if user.role == User.Role.DOCTOR:
+            # Same lock as booking: a booking in flight finishes first, a later one no longer
+            # sees the doctor (inactive).
+            DoctorProfile.objects.select_for_update().filter(pk=user.pk).first()
         pending = list(
             Appointment.objects.select_for_update(of=("self",))
             .select_related("patient", "doctor__user", "doctor__specialty")
-            .filter(patient=user, status=Appointment.Status.CONFIRMED, start_at__gt=now)
+            .filter(who, status=Appointment.Status.CONFIRMED, start_at__gt=now)
             .order_by("start_at")
         )
         for appointment in pending:
             appointment.status = Appointment.Status.CANCELLED
             appointment.cancelled_by = by
-            appointment.cancellation_reason = _("Account deactivated by an administrator.")
+            appointment.cancellation_reason = reason
             appointment.save(
                 update_fields=["status", "cancelled_by", "cancellation_reason", "updated_at"]
             )
             appointment_event.send(
-                sender=Appointment, appointment=appointment, event=EVENT_CANCELLED
+                sender=Appointment,
+                appointment=appointment,
+                event=EVENT_CANCELLED,
+                automatic=True,
             )

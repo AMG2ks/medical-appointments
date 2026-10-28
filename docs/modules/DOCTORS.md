@@ -160,4 +160,5 @@ Routes and tabs (in `app/router.dart` and the shells):
 - When the server answers `time_off_conflict`, the time off dialog lists the blocking appointments (date, patient) under the error; the doctor cancels them from the agenda, then saves again.
 - Time off is chosen as whole days (first day 00:00 to the midnight after the last day) and sent as wall-clock datetimes without offset, so the server applies `APP_TIME_ZONE` whatever the phone's zone. The list parses the response keeping the clinic's wall clock, and shows whole days as a date range (end minus one day).
 - The admin doctors list shows an "Invitation pending" line for doctors who have not accepted yet. After a specialty rename the doctor providers are invalidated so cards show the new name.
+- `start_at` / `end_at` of a time off use `core.fields.SafeDateTimeField` (shared with M3's booking): a naive year-1 / year-9999 value is a `400 invalid`, never a 500 (regression test `test_year_one_naive_datetime_is_a_400_not_a_500`).
 - `test/support/fake_doctors_repository.dart` (`FakeDoctorsRepository`, `fakeDoctor()`) is meant to be reused by M3/M4 tests.

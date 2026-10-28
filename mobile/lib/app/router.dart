@@ -23,6 +23,8 @@ import '../features/doctors/presentation/screens/doctor_profile_screen.dart';
 import '../features/doctors/presentation/screens/doctors_list_screen.dart';
 import '../features/doctors/presentation/screens/specialties_admin_screen.dart';
 import '../features/doctors/presentation/screens/time_off_screen.dart';
+import '../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/users_admin/presentation/users_admin_screen.dart';
 import 'shells/admin_shell.dart';
 import 'shells/doctor_shell.dart';
@@ -151,6 +153,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/patient/notifications',
+                builder: (_, _) => const NotificationsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/patient/profile',
                 builder: (_, _) => const ProfileScreen(),
               ),
@@ -209,6 +219,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/doctor/notifications',
+                builder: (_, _) => const NotificationsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/doctor/profile',
                 builder: (_, _) => const ProfileScreen(),
               ),
@@ -223,6 +241,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/admin',
+                builder: (_, _) => const DashboardScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/users',
                 builder: (_, _) => const UsersAdminScreen(),
               ),
             ],

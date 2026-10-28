@@ -1,0 +1,6 @@
+{% load i18n %}{% autoescape off %}{% if is_doctor %}{% blocktranslate trimmed with name=user.last_name %}Hello Dr {{ name }},{% endblocktranslate %}{% else %}{% blocktranslate trimmed with name=user.first_name %}Hello {{ name }},{% endblocktranslate %}{% endif %}
+
+{% if is_doctor %}{% if cancelled_by == "patient" %}{% blocktranslate trimmed %}{{ patient_name }} cancelled the appointment planned for {{ when }}.{% endblocktranslate %}{% else %}{% blocktranslate trimmed %}The clinic cancelled your appointment with {{ patient_name }} planned for {{ when }}.{% endblocktranslate %}{% endif %}{% else %}{% if cancelled_by == "doctor" %}{% blocktranslate trimmed %}Dr {{ doctor_name }} cancelled your appointment planned for {{ when }}.{% endblocktranslate %}{% else %}{% blocktranslate trimmed %}The clinic cancelled your appointment with Dr {{ doctor_name }} planned for {{ when }}.{% endblocktranslate %}{% endif %}{% endif %}
+{% if reason %}
+{% blocktranslate trimmed %}Reason given by {{ reason_by }}: "{{ reason }}"{% endblocktranslate %}
+{% endif %}{% endautoescape %}

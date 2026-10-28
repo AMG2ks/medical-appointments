@@ -14,14 +14,19 @@ import 'package:medical_appointments/features/auth/presentation/auth_controller.
 import 'package:medical_appointments/features/doctors/data/doctors_repository.dart';
 import 'package:medical_appointments/features/doctors/data/models/time_off.dart';
 import 'package:medical_appointments/features/doctors/presentation/screens/time_off_screen.dart';
+import 'package:medical_appointments/features/notifications/local_reminders.dart';
 
 import '../../support/fake_appointments_repository.dart';
 import '../../support/fake_doctors_repository.dart';
+import '../../support/fake_local_reminders.dart';
 import '../../support/fakes.dart';
 import '../../support/test_app.dart';
 
 void main() {
   late FakeAppointmentsRepository repo;
+  late FakeLocalReminders reminders;
+
+  setUp(() => reminders = FakeLocalReminders());
 
   Future<List<dynamic>> overrides({UserRole role = UserRole.patient}) async => [
     ...await baseOverrides(),
@@ -29,6 +34,7 @@ void main() {
     doctorsRepositoryProvider.overrideWithValue(FakeDoctorsRepository()),
     currentUserIdProvider.overrideWithValue(1),
     currentUserProvider.overrideWithValue(fakeUser(role: role)),
+    localRemindersProvider.overrideWithValue(reminders),
   ];
 
   Future<void> pumpRouter(
@@ -89,6 +95,8 @@ void main() {
         'book doctor=10 start=2026-11-05T09:30:00+01:00 reason=Cough',
       );
       expect(find.textContaining('detail 500'), findsOneWidget);
+      // First booking: the notification permission is asked in context.
+      expect(reminders.permissionRequests, 1);
     });
 
     testWidgets('slot_taken shows the message and reloads the slots', (
