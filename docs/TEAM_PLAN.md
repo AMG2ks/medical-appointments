@@ -266,9 +266,9 @@ Python 3.12 · Django 5.2 LTS · djangorestframework · djangorestframework-simp
   | Kind | Codes |
   |---|---|
   | Generic | `validation_error`, `not_authenticated`, `authentication_failed`, `token_not_valid`, `permission_denied`, `not_found`, `throttled`, `parse_error`; client-only: `network_error`, `server_error` |
-  | Field (DRF/Django) | `required`, `blank`, `null`, `invalid`, `unique`, `max_length`, `min_length`, `invalid_choice`, `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar` |
+  | Field (DRF/Django) | `required`, `blank`, `null`, `invalid`, `unique`, `max_length`, `min_length`, `invalid_choice`, `password_too_short`, `password_too_common`, `password_entirely_numeric`, `password_too_similar`, `min_value`, `max_value`, `does_not_exist`, `incorrect_type` |
   | M1 Auth | `invalid_code`, `cannot_deactivate_self`, `date_in_future` |
-  | M2 Doctors | `availability_overlap` |
+  | M2 Doctors | `availability_overlap`, `specialty_in_use` |
   | M3 Appointments | `slot_taken`, `slot_not_available`, `cancellation_too_late`, `invalid_status_transition` |
 - **Pagination** on every list: `?page=2`, `page_size` 20 (max 100) → `{ "count", "next", "previous", "results" }`.
 - **Dates/times:** `USE_TZ = True`, `TIME_ZONE = APP_TIME_ZONE` (default `Africa/Tunis`). Store UTC, return ISO 8601 with offset (`2026-11-03T09:00:00+01:00`). Dates `YYYY-MM-DD`. Availability times are wall-clock in `APP_TIME_ZONE`. The app formats dates with `intl` in the current locale.

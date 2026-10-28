@@ -8,6 +8,7 @@ urlpatterns = [
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="docs"),
     # Each module adds its own include here.
     path("api/v1/", include("accounts.urls")),
+    path("api/v1/", include("doctors.urls")),
 ]
 
 if settings.DJANGO_ADMIN_ENABLED:

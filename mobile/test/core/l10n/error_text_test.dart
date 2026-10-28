@@ -33,6 +33,12 @@ void main() {
       'invalid_code',
       'cannot_deactivate_self',
       'date_in_future',
+      'availability_overlap',
+      'min_value',
+      'max_value',
+      'does_not_exist',
+      'incorrect_type',
+      'specialty_in_use',
     ]) {
       final e = ApiException(code: code, message: 'SERVER');
       expect(errorTextFor(en, e), isNot('SERVER'), reason: code);

@@ -12,6 +12,13 @@ import '../features/auth/presentation/screens/profile_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
+import '../features/doctors/presentation/screens/availability_screen.dart';
+import '../features/doctors/presentation/screens/create_doctor_screen.dart';
+import '../features/doctors/presentation/screens/doctor_detail_screen.dart';
+import '../features/doctors/presentation/screens/doctor_profile_screen.dart';
+import '../features/doctors/presentation/screens/doctors_list_screen.dart';
+import '../features/doctors/presentation/screens/specialties_admin_screen.dart';
+import '../features/doctors/presentation/screens/time_off_screen.dart';
 import '../features/users_admin/presentation/users_admin_screen.dart';
 import 'home_placeholder.dart';
 import 'shells/admin_shell.dart';
@@ -91,7 +98,28 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/patient',
-                builder: (_, _) => const HomePlaceholder(),
+                builder:
+                    (_, _) => DoctorsListScreen(
+                      detailPath: (id) => '/patient/doctors/$id',
+                    ),
+                routes: [
+                  GoRoute(
+                    path: 'doctors/:id',
+                    builder:
+                        (_, state) => DoctorDetailScreen(
+                          doctorId: int.parse(state.pathParameters['id']!),
+                          canBook: true,
+                        ),
+                    routes: [
+                      // M3: replace the placeholder with the booking flow
+                      // (opened by `bookingRoute(doctorId)`).
+                      GoRoute(
+                        path: 'book',
+                        builder: (_, _) => const BookingPlaceholderScreen(),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -119,6 +147,31 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/doctor/availability',
+                builder:
+                    (_, _) => const AvailabilityScreen(
+                      timeOffPath: '/doctor/availability/time-off',
+                    ),
+                routes: [
+                  GoRoute(
+                    path: 'time-off',
+                    builder: (_, _) => const TimeOffScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/doctor/practice',
+                builder: (_, _) => const DoctorProfileScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/doctor/profile',
                 builder: (_, _) => const ProfileScreen(),
               ),
@@ -134,6 +187,40 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/admin',
                 builder: (_, _) => const UsersAdminScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/doctors',
+                builder:
+                    (_, _) => DoctorsListScreen(
+                      detailPath: (id) => '/admin/doctors/$id',
+                      createPath: '/admin/doctors/new',
+                    ),
+                routes: [
+                  // 'new' before ':id' so it is not read as a doctor id.
+                  GoRoute(
+                    path: 'new',
+                    builder: (_, _) => const CreateDoctorScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder:
+                        (_, state) => DoctorDetailScreen(
+                          doctorId: int.parse(state.pathParameters['id']!),
+                        ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/specialties',
+                builder: (_, _) => const SpecialtiesAdminScreen(),
               ),
             ],
           ),

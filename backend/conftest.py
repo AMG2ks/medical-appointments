@@ -5,6 +5,7 @@ from django.core.cache import cache
 from rest_framework.test import APIClient
 
 from accounts.models import PatientProfile, User
+from doctors.models import DoctorProfile, Specialty
 
 PASSWORD = "S3cure-pass!"
 
@@ -52,11 +53,18 @@ def patient(db):
 
 
 @pytest.fixture
-def doctor(db):
-    """A doctor User. The DoctorProfile is added by the doctors module once it exists."""
-    return User.objects.create_user(
+def specialty(db):
+    return Specialty.objects.create(name_fr="Cardiologie", name_en="Cardiology")
+
+
+@pytest.fixture
+def doctor(db, specialty):
+    """A doctor User with a DoctorProfile (same id). Use `doctor.doctor_profile`."""
+    user = User.objects.create_user(
         "doctor@example.com", PASSWORD, first_name="Doc", last_name="Tor", role=User.Role.DOCTOR
     )
+    DoctorProfile.objects.create(user=user, specialty=specialty)
+    return user
 
 
 @pytest.fixture

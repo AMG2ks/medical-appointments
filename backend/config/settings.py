@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # project apps (each module adds its own app here)
     "core",
     "accounts",
+    "doctors",
 ]
 
 MIDDLEWARE = [

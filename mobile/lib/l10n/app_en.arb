@@ -106,5 +106,78 @@
         "type": "String"
       }
     }
-  }
+  },
+  "navDoctors": "Doctors",
+  "navAvailability": "Availability",
+  "navPractice": "Practice",
+  "navSpecialties": "Specialties",
+  "commonSave": "Save",
+  "commonDelete": "Delete",
+  "errorAvailabilityOverlap": "These hours overlap an existing availability.",
+  "errorSpecialtyInUse": "This specialty is used by doctors and cannot be deleted.",
+  "errorMinValue": "This value is too small.",
+  "errorMaxValue": "This value is too large.",
+  "errorDoesNotExist": "This item does not exist anymore.",
+  "validationMinutes": "Enter a number between {min} and {max}.",
+  "@validationMinutes": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "doctorsListTitle": "Doctors",
+  "doctorsSearchHint": "Search by name",
+  "doctorsFilterAll": "All",
+  "doctorsEmpty": "No doctors found.",
+  "doctorsDetailTitle": "Doctor",
+  "doctorsConsultationMinutes": "{minutes} min per consultation",
+  "@doctorsConsultationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "doctorsBioEmpty": "No biography yet.",
+  "doctorsBookButton": "Book an appointment",
+  "doctorsBookComingSoon": "Booking will be available soon.",
+  "doctorsAddButton": "Add a doctor",
+  "doctorsCreateTitle": "New doctor",
+  "doctorsCreateInfo": "The doctor receives an email with a code to set a password.",
+  "doctorsCreateButton": "Create doctor",
+  "doctorsCreated": "Doctor created. An invitation email was sent.",
+  "doctorsLanguageLabel": "Doctor's language (for emails)",
+  "doctorsSpecialtyLabel": "Specialty",
+  "doctorsBioLabel": "Biography",
+  "doctorsMinutesLabel": "Consultation duration (minutes)",
+  "doctorsProfileTitle": "Professional profile",
+  "doctorsProfileSaved": "Professional profile saved.",
+  "availabilityTitle": "Weekly availability",
+  "availabilityEmpty": "No availability yet. Add your working hours.",
+  "availabilityAdd": "Add hours",
+  "availabilityEditTitle": "Edit hours",
+  "availabilityDayLabel": "Day",
+  "availabilityStartLabel": "From",
+  "availabilityEndLabel": "To",
+  "availabilityEndAfterStart": "The end must be after the start.",
+  "availabilityDeleteTitle": "Delete these hours?",
+  "timeOffTitle": "Time off",
+  "timeOffEmpty": "No time off planned.",
+  "timeOffAdd": "Add time off",
+  "timeOffPickRange": "Choose the dates",
+  "timeOffReasonLabel": "Reason (optional)",
+  "timeOffDeleteTitle": "Delete this time off?",
+  "specialtiesTitle": "Specialties",
+  "specialtiesEmpty": "No specialties yet.",
+  "specialtiesAdd": "Add a specialty",
+  "specialtiesEditTitle": "Edit specialty",
+  "specialtiesNameFrLabel": "Name (French)",
+  "specialtiesNameEnLabel": "Name (English)",
+  "specialtiesDeleteTitle": "Delete this specialty?",
+  "errorIncorrectType": "This value has the wrong type.",
+  "doctorsInvitePending": "Invitation pending"
 }

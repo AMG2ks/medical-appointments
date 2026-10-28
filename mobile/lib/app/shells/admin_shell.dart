@@ -21,6 +21,14 @@ class AdminShell extends StatelessWidget {
           label: l10n.navUsers,
         ),
         NavigationDestination(
+          icon: const Icon(Icons.medical_services_outlined),
+          label: l10n.navDoctors,
+        ),
+        NavigationDestination(
+          icon: const Icon(Icons.category_outlined),
+          label: l10n.navSpecialties,
+        ),
+        NavigationDestination(
           icon: const Icon(Icons.person_outline),
           label: l10n.navProfile,
         ),

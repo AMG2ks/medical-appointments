@@ -31,10 +31,17 @@ String? _knownCode(AppLocalizations l10n, String code) {
     'password_too_common' => l10n.errorPasswordTooCommon,
     'password_entirely_numeric' => l10n.errorPasswordEntirelyNumeric,
     'password_too_similar' => l10n.errorPasswordTooSimilar,
+    'min_value' => l10n.errorMinValue,
+    'max_value' => l10n.errorMaxValue,
+    'does_not_exist' => l10n.errorDoesNotExist,
+    'incorrect_type' => l10n.errorIncorrectType,
     // M1 Auth
     'invalid_code' => l10n.errorInvalidCode,
     'cannot_deactivate_self' => l10n.errorCannotDeactivateSelf,
     'date_in_future' => l10n.errorDateInFuture,
+    // M2 Doctors
+    'availability_overlap' => l10n.errorAvailabilityOverlap,
+    'specialty_in_use' => l10n.errorSpecialtyInUse,
     _ => null,
   };
 }

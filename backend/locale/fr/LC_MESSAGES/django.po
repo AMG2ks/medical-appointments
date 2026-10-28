@@ -75,3 +75,13 @@ msgstr ""
 "un code » et saisissez ce code avec votre e-mail pour définir votre mot de "
 "passe. Le code est valable %(hours)s heures et ne peut être utilisé qu'une "
 "seule fois."
+
+# --- doctors: API messages ---
+msgid "This specialty is used by doctors."
+msgstr "Cette spécialité est utilisée par des médecins."
+
+msgid "This period overlaps an existing availability."
+msgstr "Cette plage chevauche une disponibilité existante."
+
+msgid "The end must be after the start."
+msgstr "La fin doit être après le début."
